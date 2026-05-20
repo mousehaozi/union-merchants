@@ -1,0 +1,135 @@
+<template>
+  <el-header class="app-header">
+    <div class="header-left">
+      <div class="logo-box">
+        <el-icon class="logo-icon"><Shop /></el-icon>
+        <span class="logo-title">数智工会商家端</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <el-dropdown trigger="click" @command="handleHeaderCommand">
+        <div class="user-info">
+          <div class="char-avatar">{{ avatarChar }}</div>
+          <span class="nickname">{{ nickname }}</span>
+          <el-icon class="arrow-icon"><ArrowDown /></el-icon>
+        </div>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item command="goHome">
+              <el-icon><Menu /></el-icon>旧版主页
+            </el-dropdown-item>
+            <el-dropdown-item divided command="logout" class="logout-menu-item">
+              <el-icon><SwitchButton /></el-icon>退出登录
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+    </div>
+  </el-header>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { removeToken } from '@/utils/token'
+
+const router = useRouter()
+
+const nickname = ref(localStorage.getItem('nickname') || localStorage.getItem('username') || '工会商家')
+const avatarChar = computed(() => {
+  const name = nickname.value.trim()
+  return name ? name.charAt(0).toUpperCase() : '商'
+})
+
+const handleHeaderCommand = (command) => {
+  if (command === 'logout') {
+    ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      removeToken()
+      ElMessage.success('退出成功')
+      router.push('/login')
+    }).catch(() => {})
+  } else if (command === 'goHome') {
+    router.push('/')
+  }
+}
+</script>
+
+<style scoped>
+.app-header {
+  height: 64px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  z-index: 10;
+}
+
+.logo-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  font-size: 24px;
+  color: #6366f1;
+}
+
+.logo-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: 0.5px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 20px;
+  transition: background-color 0.2s;
+}
+
+.user-info:hover {
+  background-color: #f1f5f9;
+}
+
+.char-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
+}
+
+.nickname {
+  font-size: 14px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.arrow-icon {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.logout-menu-item {
+  color: #ef4444 !important;
+}
+</style>
