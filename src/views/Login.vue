@@ -103,7 +103,7 @@
                 @keydown.enter="onSubmit"
               />
               <button type="button" class="custom-captcha-trigger" @click="loadCaptcha">
-                <img v-if="verificationImageSrc" :src="verificationImageSrc" alt="验证码" class="custom-verification-img" />
+                <img v-if="verificationImageSrc" :src="getImageUrl(verificationImageSrc)" alt="验证码" class="custom-verification-img" />
                 <span v-else>加载中...</span>
               </button>
             </div>
@@ -138,6 +138,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { Connection, Iphone, Key, Lock, Message, User, Shop } from '@element-plus/icons-vue'
 
 import { getCaptcha, login } from '@/api/authApi'
+import { getImageUrl } from '@/utils/getimage.js'
 import { setToken } from '@/utils/token'
 
 import loginBg from '@/assets/login_bg.png'

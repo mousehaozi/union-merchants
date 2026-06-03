@@ -192,7 +192,7 @@
             <div class="merchant-profile-cell">
               <el-image 
                 class="merchant-logo-img" 
-                :src="scope.row.logo" 
+                :src="getImageUrl(scope.row.logo)"
                 fit="cover" 
                 lazy
               >
@@ -287,6 +287,7 @@ import {
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
+import { getImageUrl } from '@/utils/getimage.js'
 
 defineOptions({
   name: 'Home'

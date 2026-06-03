@@ -82,7 +82,7 @@
       <el-dropdown trigger="click" @command="handleHeaderCommand">
         <div class="user-info">
           <div class="char-avatar">
-            <img v-if="merchantInfo && merchantInfo.businessLicenseUrl" :src="merchantInfo.businessLicenseUrl" alt="avatar" class="avatar-img" />
+            <img v-if="merchantInfo && merchantInfo.businessLicenseUrl" :src="getImageUrl(merchantInfo.businessLicenseUrl)" alt="avatar" class="avatar-img" />
             <span v-else>{{ avatarChar }}</span>
           </div>
           <span class="nickname">{{ nickname }}</span>
@@ -107,6 +107,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { removeToken } from '@/utils/token'
 import { resetBreadcrumbs } from '@/utils/breadcrumbState'
 import { getCurrentMerchant } from '@/api/authApi'
+import { getImageUrl } from '@/utils/getimage.js'
 import { isCollapse, toggleCollapse } from '@/utils/sidebarState'
 import {
   merchantInfo,

@@ -81,8 +81,8 @@
             <template #default="scope">
               <el-image
                 class="table-cover-img"
-                :src="resolveUrl(scope.row.coverUrl)"
-                :preview-src-list="[resolveUrl(scope.row.coverUrl)]"
+                :src="getImageUrl(scope.row.coverUrl)"
+                :preview-src-list="[getImageUrl(scope.row.coverUrl)]"
                 preview-teleported
                 fit="cover"
               >
@@ -247,7 +247,7 @@
               <div class="cover-upload-zone" @click="triggerCoverUpload">
                 <el-image
                   v-if="productForm.coverUrl"
-                  :src="resolveUrl(productForm.coverUrl)"
+                  :src="getImageUrl(productForm.coverUrl)"
                   fit="cover"
                   class="cover-upload-preview"
                 />
@@ -289,7 +289,7 @@
                 >
                   <el-image
                     v-if="url"
-                    :src="resolveUrl(url)"
+                    :src="getImageUrl(url)"
                     fit="cover"
                     class="carousel-card-img"
                   />
@@ -408,7 +408,7 @@
                     >
                       <el-image
                         v-if="scope.row.imageUrl"
-                        :src="resolveUrl(scope.row.imageUrl)"
+                        :src="getImageUrl(scope.row.imageUrl)"
                         fit="cover"
                         class="spec-img-thumb"
                       />
@@ -518,8 +518,8 @@
                   <div class="detail-card-title">商品封面</div>
                   <div class="detail-cover-wrapper">
                     <el-image
-                      :src="resolveUrl(detailData.coverUrl)"
-                      :preview-src-list="[resolveUrl(detailData.coverUrl)]"
+                      :src="getImageUrl(detailData.coverUrl)"
+                      :preview-src-list="[getImageUrl(detailData.coverUrl)]"
                       preview-teleported
                       fit="cover"
                       class="detail-cover"
@@ -559,11 +559,11 @@
                     <el-image
                       v-for="(url, idx) in detailData.carouselUrls"
                       :key="idx"
-                      :src="resolveUrl(url)"
+                      :src="getImageUrl(url)"
                       fit="cover"
                       class="carousel-thumb"
                       :preview-src-list="
-                        detailData.carouselUrls.map(resolveUrl)
+                        detailData.carouselUrls.map(getImageUrl)
                       "
                       :initial-index="idx"
                       preview-teleported
@@ -640,8 +640,8 @@
                     >
                       <template #default="scope">
                         <el-image
-                          :src="resolveUrl(scope.row.imageUrl)"
-                          :preview-src-list="[resolveUrl(scope.row.imageUrl)]"
+                          :src="getImageUrl(scope.row.imageUrl)"
+                          :preview-src-list="[getImageUrl(scope.row.imageUrl)]"
                           preview-teleported
                           fit="cover"
                           class="spec-thumb-img"
@@ -833,25 +833,12 @@ import {
   getProductChangeLogs,
 } from "@/api/productApi";
 import { merchantApis } from "@/api/merchantApplyApi";
-import { baseUrl } from "@/utils/baseUrl.js";
+import { getImageUrl } from "@/utils/getimage.js";
 import CommonLayout from "@/components/commonLayout.vue";
 
 defineOptions({
   name: "Product",
 });
-
-// Resolve relative image URL to absolute
-const resolveUrl = (url) => {
-  if (!url) return "";
-  if (
-    url.startsWith("http://") ||
-    url.startsWith("https://") ||
-    url.startsWith("data:")
-  )
-    return url;
-  const base = baseUrl().replace(/\/$/, "");
-  return url.startsWith("/") ? `${base}${url}` : `${base}/${url}`;
-};
 const loading = ref(false);
 const submitLoading = ref(false);
 

@@ -57,8 +57,8 @@
             <el-image
               v-if="detail.productCoverSnapshot"
               class="snapshot-cover"
-              :src="resolveUrl(detail.productCoverSnapshot)"
-              :preview-src-list="[resolveUrl(detail.productCoverSnapshot)]"
+              :src="getImageUrl(detail.productCoverSnapshot)"
+              :preview-src-list="[getImageUrl(detail.productCoverSnapshot)]"
               preview-teleported
               fit="cover"
             />
@@ -125,7 +125,7 @@
 import { computed } from "vue";
 import { Close } from "@element-plus/icons-vue";
 import { formatDate } from "@/utils/date.js";
-import { resolveUrl } from "@/utils/resolveUrl.js";
+import { getImageUrl } from "@/utils/getimage.js";
 
 const props = defineProps({
   modelValue: {

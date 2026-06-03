@@ -111,9 +111,9 @@
                 <el-image
                   v-if="scope.row.productCoverSnapshot"
                   class="product-cover"
-                  :src="resolveUrl(scope.row.productCoverSnapshot)"
+                  :src="getImageUrl(scope.row.productCoverSnapshot)"
                   :preview-src-list="[
-                    resolveUrl(scope.row.productCoverSnapshot),
+                    getImageUrl(scope.row.productCoverSnapshot),
                   ]"
                   preview-teleported
                   fit="cover"
@@ -276,7 +276,7 @@ import {
   shipMerchantOrders,
 } from "@/api/orderApi.js";
 import { formatDate } from "@/utils/date.js";
-import { resolveUrl } from "@/utils/resolveUrl.js";
+import { getImageUrl } from "@/utils/getimage.js";
 import OrderDetailDialog from "./components/OrderDetailDialog.vue";
 import ShipDialog from "./components/ShipDialog.vue";
 

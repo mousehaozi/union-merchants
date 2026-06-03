@@ -298,16 +298,7 @@ import {
 } from '@element-plus/icons-vue'
 import logoImg from '@/assets/logo.png'
 import { merchantApis } from '@/api/merchantApplyApi'
-import { baseUrl } from '@/utils/baseUrl.js'
-
-const getImageUrl = (url) => {
-  if (!url) return ''
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
-    return url
-  }
-  const base = baseUrl().replace(/\/$/, '')
-  return url.startsWith('/') ? `${base}${url}` : `${base}/${url}`
-}
+import { getImageUrl } from '@/utils/getimage.js'
 
 const router = useRouter()
 

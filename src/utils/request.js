@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
-import { baseUrl } from './baseUrl.js'
+import { getBackendBaseUrl } from './baseUrl.js'
 import { getToken, removeToken } from './token.js'
 
 const AUTH_MESSAGE_THROTTLE_TIME = 1500
@@ -25,7 +25,7 @@ const redirectToLogin = async () => {
 }
 
 const request = axios.create({
-  baseURL: baseUrl(),
+  baseURL: getBackendBaseUrl(),
   timeout: 10000,
 })
 
