@@ -50,6 +50,8 @@ const cachedNames = computed(() => {
     if (item.path === '/') return 'Home'
     if (item.path === '/product') return 'Product'
     if (item.path === '/product-apply') return 'ProductApply'
+    if (item.path === '/merchant-orders') return 'MerchantOrders'
+    if (item.path === '/wait-ship-orders') return 'WaitShipOrders'
     if (item.path === '/system-settings') return 'SystemSettings'
     return ''
   }).filter(Boolean)

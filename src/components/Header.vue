@@ -141,6 +141,18 @@ const routeHierarchy = computed(() => {
       { name: '商品管理', isBold: true },
       { name: '上架申请', isBold: false }
     ]
+  } else if (route.path === '/merchant-orders') {
+    return [
+      { name: base, isBold: true },
+      { name: '订单管理', isBold: true },
+      { name: '全部订单', isBold: false }
+    ]
+  } else if (route.path === '/wait-ship-orders') {
+    return [
+      { name: base, isBold: true },
+      { name: '订单管理', isBold: true },
+      { name: '待发货订单', isBold: false }
+    ]
   } else if (route.path === '/system-settings') {
     return [
       { name: base, isBold: true },

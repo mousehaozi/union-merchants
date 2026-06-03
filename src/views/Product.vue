@@ -139,39 +139,6 @@
                 </template>
               </el-table-column>
 
-              <!-- 4. 发货地（分列显示，宽度约束，超出悬浮提示） -->
-              <el-table-column
-                label="发货地"
-                width="160"
-                align="center"
-                show-overflow-tooltip
-              >
-                <template #default="scope">
-                  <span>{{ scope.row.deliveryPlace || "-" }}</span>
-                </template>
-              </el-table-column>
-
-              <!-- 5. 商品描述（单行省略号模式） -->
-              <el-table-column label="商品描述" align="left" min-width="180">
-                <template #default="scope">
-                  <!-- 悬浮提示完整内容 -->
-                  <el-tooltip
-                    v-if="scope.row.description"
-                    class="box-item"
-                    effect="dark"
-                    :content="scope.row.description"
-                    placement="top"
-                  >
-                    <!-- 单行截断容器 -->
-                    <div class="single-line-ellipsis">
-                      {{ scope.row.description }}
-                    </div>
-                  </el-tooltip>
-                  <!-- 无数据占位 -->
-                  <span v-else class="text-placeholder">-</span>
-                </template>
-              </el-table-column>
-
               <el-table-column
                 prop="status"
                 label="状态"
@@ -375,33 +342,23 @@
               />
             </el-form-item>
 
-            <div class="info-row">
-              <el-form-item label="商品分类" prop="categoryId" class="info-col">
-                <el-cascader
-                  v-model="productForm.categoryId"
-                  :options="categories"
-                  :props="{
-                    value: 'id',
-                    label: 'categoryName',
-                    children: 'children',
-                    emitPath: false,
-                    checkStrictly: true
-                  }"
-                  placeholder="请选择分类"
-                  filterable
-                  @change="handleCategoryChange"
-                  style="width: 100%"
-                />
-              </el-form-item>
-
-              <el-form-item label="发货始发地" prop="deliveryPlace" class="info-col">
-                <el-input
-                  v-model="productForm.deliveryPlace"
-                  placeholder="例如: 广东深圳"
-                  clearable
-                />
-              </el-form-item>
-            </div>
+            <el-form-item label="商品分类" prop="categoryId">
+              <el-cascader
+                v-model="productForm.categoryId"
+                :options="categories"
+                :props="{
+                  value: 'id',
+                  label: 'categoryName',
+                  children: 'children',
+                  emitPath: false,
+                  checkStrictly: true
+                }"
+                placeholder="请选择分类"
+                filterable
+                @change="handleCategoryChange"
+                style="width: 100%"
+              />
+            </el-form-item>
 
             <!-- 商品规格 -->
             <div class="specs-section-wrapper">
@@ -514,27 +471,6 @@
           </div>
         </div>
 
-        <!-- 商品详细描述富文本通栏 -->
-        <div class="desc-editor-section">
-          <div class="desc-section-title">
-            商品详细描述 <span class="required-star">*</span>
-          </div>
-          <div class="editor-container">
-            <Toolbar
-              :editor="editorRef"
-              :defaultConfig="toolbarConfig"
-              mode="default"
-              class="editor-toolbar"
-            />
-            <Editor
-              v-model="productForm.description"
-              :defaultConfig="editorConfig"
-              mode="default"
-              class="editor-content"
-              @onCreated="handleCreated"
-            />
-          </div>
-        </div>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -629,12 +565,6 @@
                       </span>
                     </div>
                     <div class="info-item">
-                      <span class="info-label">发货地点</span>
-                      <span class="info-value">{{
-                        detailData.deliveryPlace || "未知"
-                      }}</span>
-                    </div>
-                    <div class="info-item">
                       <span class="info-label">总库存</span>
                       <span class="info-value">{{ detailData.totalStock }} 件</span>
                     </div>
@@ -704,15 +634,6 @@
                 </div>
               </div>
             </div>
-
-            <!-- 商品详细描述富文本通栏展示 -->
-            <div class="detail-desc-section">
-              <div class="detail-desc-title">商品详细描述</div>
-              <div
-                class="detail-desc-content rich-text-content"
-                v-html="detailData.description || '<p style=\'color: #94a3b8;\'>暂无商品描述</p>'"
-              ></div>
-            </div>
           </div>
         </el-tab-pane>
 
@@ -781,10 +702,8 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, onMounted, shallowRef, onBeforeUnmount } from "vue";
+import { ref, computed, reactive, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
-import "@wangeditor/editor/dist/css/style.css";
 import {
   Shop,
   Menu,
@@ -1113,38 +1032,6 @@ const formatChangeValue = (fieldName, value) => {
 };
 
 
-// 富文本编辑器相关配置与生命周期
-const editorRef = shallowRef();
-const toolbarConfig = {};
-const editorConfig = {
-  placeholder: "请输入详细描述商品特点、规格参数、包装清单与售后服务等...",
-  MENU_CONF: {
-    uploadImage: {
-      async customUpload(file, insertFn) {
-        try {
-          const url = await uploadImage(file);
-          if (url) {
-            const absoluteUrl = resolveUrl(url);
-            insertFn(absoluteUrl, "商品图片", absoluteUrl);
-          }
-        } catch (err) {
-          ElMessage.error(err.message || "图片上传失败");
-        }
-      }
-    }
-  }
-};
-
-const handleCreated = (editor) => {
-  editorRef.value = editor;
-};
-
-onBeforeUnmount(() => {
-  const editor = editorRef.value;
-  if (editor == null) return;
-  editor.destroy();
-});
-
 // Create/Edit form dialog state
 const formDialogVisible = ref(false);
 const isEditMode = ref(false);
@@ -1155,8 +1042,6 @@ const productForm = reactive({
   productName: "",
   coverUrl: "",
   carouselUrls: [""],
-  description: "",
-  deliveryPlace: "",
   categoryId: "",
   categoryName: "",
   status: 0,
@@ -1181,8 +1066,6 @@ const openCreateDrawer = () => {
     productName: "",
     coverUrl: "",
     carouselUrls: [""],
-    description: "",
-    deliveryPlace: "",
     categoryId: "",
     categoryName: "",
     status: 0,
@@ -1208,8 +1091,6 @@ const handleEdit = async (row) => {
           data.carouselUrls && data.carouselUrls.length
             ? [...data.carouselUrls]
             : [""],
-        description: data.description || "",
-        deliveryPlace: data.deliveryPlace || "",
         categoryId: data.categoryId || "",
         categoryName: data.categoryName || "",
         status: data.status !== undefined ? data.status : 0,
@@ -1289,8 +1170,6 @@ const submitForm = async () => {
       productName: productForm.productName,
       coverUrl: productForm.coverUrl,
       carouselUrls: cleanCarousels,
-      description: productForm.description,
-      deliveryPlace: productForm.deliveryPlace,
       categoryId: Number(productForm.categoryId) || 1,
       categoryName: productForm.categoryName,
       status: productForm.status,
@@ -1374,30 +1253,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
 }
-
-/* 单行文本省略号样式 */
-.single-line-ellipsis {
-  white-space: nowrap; /* 强制不换行 */
-  overflow: hidden; /* 超出部分隐藏 */
-  text-overflow: ellipsis; /* 超出显示省略号 */
-  font-size: 13px; /* 保持与表格其他文本一致 */
-  color: #475569; /* 深灰色，比标题浅，比占位符深 */
-  line-height: 20px; /* 垂直居中微调 */
-  padding: 0; /* 去除内边距，防止省略号太靠右 */
-  margin: 0;
-}
-
-/* 表格内占位符样式优化 */
-.text-placeholder {
-  font-size: 13px;
-  color: #cbd5e1; /* 浅灰色，表示无数据 */
-  font-style: italic; /* 斜体，更显眼 */
-}
-
-
-
-
-
 
 .btn-create {
   background: linear-gradient(135deg, #00a86b 0%, #008655 100%);
@@ -1616,16 +1471,6 @@ onMounted(() => {
   flex-direction: column;
   gap: 16px;
   min-width: 0;
-}
-
-.info-row {
-  display: flex;
-  gap: 16px;
-}
-
-.info-col {
-  flex: 1;
-  margin-bottom: 0 !important;
 }
 
 .form-item-block {
@@ -2018,13 +1863,6 @@ onMounted(() => {
   font-weight: 500;
 }
 
-.detail-description {
-  font-size: 13px;
-  color: #475569;
-  line-height: 1.6;
-  margin: 0;
-  white-space: pre-wrap;
-}
 .detail-specs-table {
   border-radius: 10px;
   overflow: hidden;
@@ -2170,139 +2008,8 @@ onMounted(() => {
   background: #cbd5e1;
 }
 
-/* ===== 富文本与新布局定制 CSS 样式 ===== */
-
-/* 新增商品编辑弹窗中的富文本区块 */
-.desc-editor-section {
-  padding: 0 24px 20px 24px;
-  background-color: #ffffff;
-}
-
-.desc-section-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #334155;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
 .required-star {
   color: #ef4444;
   font-weight: bold;
-}
-
-.editor-container {
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
-}
-
-.editor-toolbar {
-  border-bottom: 1px solid #e2e8f0 !important;
-  background-color: #f8fafc !important;
-}
-
-.editor-content {
-  height: 320px !important;
-  overflow-y: hidden;
-  background-color: #ffffff;
-}
-
-.w-e-text-container {
-  background-color: #ffffff !important;
-}
-
-/* 商品详情弹窗中的富文本展示区块 */
-.detail-desc-section {
-  padding: 24px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.detail-desc-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #334155;
-  margin-bottom: 12px;
-}
-
-.detail-desc-content {
-  background-color: #f8fafc;
-  padding: 20px;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  min-height: 100px;
-}
-
-/* 富文本渲染排版重置与美化 */
-.rich-text-content {
-  font-size: 14px;
-  color: #334155;
-  line-height: 1.6;
-  word-break: break-all;
-}
-
-.rich-text-content p {
-  margin: 8px 0;
-}
-
-.rich-text-content img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  margin: 12px 0;
-  display: block;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-}
-
-.rich-text-content h1,
-.rich-text-content h2,
-.rich-text-content h3,
-.rich-text-content h4,
-.rich-text-content h5,
-.rich-text-content h6 {
-  color: #0f172a;
-  margin: 16px 0 8px 0;
-  font-weight: 600;
-}
-
-.rich-text-content ul,
-.rich-text-content ol {
-  padding-left: 20px;
-  margin: 8px 0;
-}
-
-.rich-text-content li {
-  margin: 4px 0;
-}
-
-.rich-text-content blockquote {
-  border-left: 4px solid #00a86b;
-  background-color: #f1f5f9;
-  padding: 8px 16px;
-  margin: 12px 0;
-  color: #475569;
-  border-radius: 0 6px 6px 0;
-}
-
-.rich-text-content table {
-  border-collapse: collapse;
-  width: 100%;
-  margin: 12px 0;
-}
-
-.rich-text-content table th,
-.rich-text-content table td {
-  border: 1px solid #e2e8f0;
-  padding: 8px 12px;
-  text-align: left;
-}
-
-.rich-text-content table th {
-  background-color: #f1f5f9;
-  font-weight: 600;
 }
 </style>
