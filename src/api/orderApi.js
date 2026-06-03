@@ -2,7 +2,7 @@ import request from "@/utils/request.js";
 
 /**
  * 商家订单分页
- * @param {Object} params - { pageNum, pageSize, status }
+ * @param {Object} params - { pageNum, pageSize, status, receiverName, receiverPhone, userName }
  */
 export const getMerchantOrderPage = (params) => {
   return request.get("/merchant/orders/page", { params });
@@ -10,7 +10,7 @@ export const getMerchantOrderPage = (params) => {
 
 /**
  * 商家待发货订单分页
- * @param {Object} params - { pageNum, pageSize }
+ * @param {Object} params - { pageNum, pageSize, receiverName, receiverPhone, userName }
  */
 export const getWaitShipOrderPage = (params) => {
   return request.get("/merchant/orders/wait-ship/page", { params });

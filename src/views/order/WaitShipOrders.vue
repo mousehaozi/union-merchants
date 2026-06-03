@@ -1,14 +1,59 @@
 <template>
   <div class="page-container wait-ship-page">
     <CommonLayout>
+      <template #search>
+        <el-form
+          :inline="true"
+          :model="searchForm"
+          class="search-form"
+          size="default"
+        >
+          <el-form-item label="收货人姓名">
+            <el-input
+              v-model="searchForm.receiverName"
+              clearable
+              placeholder="请输入收货人姓名"
+              style="width: 200px"
+              @keyup.enter="handleSearch"
+            />
+          </el-form-item>
+          <el-form-item label="收货人手机号">
+            <el-input
+              v-model="searchForm.receiverPhone"
+              clearable
+              placeholder="请输入收货人手机号"
+              style="width: 220px"
+              @keyup.enter="handleSearch"
+            />
+          </el-form-item>
+          <el-form-item label="下单用户名">
+            <el-input
+              v-model="searchForm.userName"
+              clearable
+              placeholder="请输入下单用户名"
+              style="width: 200px"
+              @keyup.enter="handleSearch"
+            />
+          </el-form-item>
+          <el-form-item>
+            <el-button
+              type="primary"
+              plain
+              :icon="Search"
+              :loading="loading"
+              @click="handleSearch"
+            >
+              搜索
+            </el-button>
+            <el-button plain :icon="Refresh" @click="handleReset">
+              重置
+            </el-button>
+          </el-form-item>
+        </el-form>
+      </template>
+
       <template #actions>
         <div class="page-toolbar">
-          <div>
-            <h2 class="page-title">待发货订单</h2>
-            <p class="page-subtitle">
-              处理当前商家的待发货订单，支持同地址订单合并发货。
-            </p>
-          </div>
           <div class="toolbar-actions">
             <el-button
               plain
@@ -174,9 +219,9 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { ElMessage } from "element-plus";
-import { Promotion, Refresh, View } from "@element-plus/icons-vue";
+import { Promotion, Refresh, Search, View } from "@element-plus/icons-vue";
 import CommonLayout from "@/components/commonLayout.vue";
 import {
   getMerchantOrderDetail,
@@ -190,6 +235,12 @@ import ShipDialog from "./components/ShipDialog.vue";
 
 defineOptions({
   name: "WaitShipOrders",
+});
+
+const searchForm = reactive({
+  receiverName: "",
+  receiverPhone: "",
+  userName: "",
 });
 
 const tableData = ref([]);
@@ -208,12 +259,20 @@ const sameAddressOrders = ref([]);
 const sameAddressLoading = ref(false);
 const shipSubmitLoading = ref(false);
 
+const normalizeSearchValue = (value) => {
+  const text = String(value ?? "").trim();
+  return text || undefined;
+};
+
 const loadOrders = async () => {
   loading.value = true;
   try {
     const res = await getWaitShipOrderPage({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
+      receiverName: normalizeSearchValue(searchForm.receiverName),
+      receiverPhone: normalizeSearchValue(searchForm.receiverPhone),
+      userName: normalizeSearchValue(searchForm.userName),
     });
 
     if (res && (res.code === 200 || res.code === 0) && res.data) {
@@ -227,6 +286,21 @@ const loadOrders = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const handleSearch = () => {
+  pageNum.value = 1;
+  loadOrders();
+};
+
+const handleReset = () => {
+  Object.assign(searchForm, {
+    receiverName: "",
+    receiverPhone: "",
+    userName: "",
+  });
+  pageNum.value = 1;
+  loadOrders();
 };
 
 const handleSizeChange = (val) => {
