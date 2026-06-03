@@ -15,7 +15,7 @@
 
 ```env
 # .env.development
-VITE_BACKEND_BASE_URL=/api
+VITE_BACKEND_BASE_URL=
 ```
 
 示例：`getImageUrl("/uploads/1.jpg")` 在开发环境返回 `"/uploads/1.jpg"`。
