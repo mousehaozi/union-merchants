@@ -67,9 +67,6 @@
                   <span class="product-name">{{
                     scope.row.productNameSnapshot || "-"
                   }}</span>
-                  <span class="product-meta"
-                    >商品ID：{{ scope.row.productId || "-" }}</span
-                  >
                 </div>
               </div>
             </template>
