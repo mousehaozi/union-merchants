@@ -1,224 +1,224 @@
 <template>
   <div class="page-container">
-
-        <!-- Common Layout Wrapper -->
-        <CommonLayout>
-          <!-- Search Bar -->
-          <template #search>
-            <el-form
-              :inline="true"
-              :model="searchForm"
-              class="search-form"
-              size="default"
+    <!-- Common Layout Wrapper -->
+    <CommonLayout>
+      <!-- Search Bar -->
+      <template #search>
+        <el-form
+          :inline="true"
+          :model="searchForm"
+          class="search-form"
+          size="default"
+        >
+          <el-form-item label="商品名称">
+            <el-input
+              v-model="searchForm.productName"
+              placeholder="请输入商品名称"
+              clearable
+              @keyup.enter="handleSearch"
+            />
+          </el-form-item>
+          <el-form-item label="商品分类">
+            <el-cascader
+              v-model="searchForm.categoryId"
+              :options="categories"
+              :props="{
+                value: 'id',
+                label: 'categoryName',
+                children: 'children',
+                emitPath: false,
+                checkStrictly: true,
+              }"
+              placeholder="全分类"
+              clearable
+              style="width: 180px"
+            />
+          </el-form-item>
+          <el-form-item label="商品状态">
+            <el-select
+              v-model="searchForm.status"
+              placeholder="全部状态"
+              clearable
+              style="width: 140px"
             >
-              <el-form-item label="商品名称">
-                <el-input
-                  v-model="searchForm.productName"
-                  placeholder="请输入商品名称"
-                  clearable
-                  @keyup.enter="handleSearch"
-                />
-              </el-form-item>
-              <el-form-item label="商品分类">
-                <el-cascader
-                  v-model="searchForm.categoryId"
-                  :options="categories"
-                  :props="{
-                    value: 'id',
-                    label: 'categoryName',
-                    children: 'children',
-                    emitPath: false,
-                    checkStrictly: true
-                  }"
-                  placeholder="全分类"
-                  clearable
-                  style="width: 180px"
-                />
-              </el-form-item>
-              <el-form-item label="商品状态">
-                <el-select
-                  v-model="searchForm.status"
-                  placeholder="全部状态"
-                  clearable
-                  style="width: 140px"
-                >
-                  <el-option label="未上架" :value="0" />
-                  <el-option label="已上架" :value="1" />
-                  <el-option label="已下架" :value="2" />
-                </el-select>
-              </el-form-item>
-              <el-form-item>
-                <el-button
-                  type="primary"
-                  plain
-                  :icon="Search"
-                  @click="handleSearch"
-                  >搜索</el-button
-                >
-                <el-button plain :icon="Refresh" @click="handleReset"
-                  >重置</el-button
-                >
-              </el-form-item>
-            </el-form>
-          </template>
-
-          <!-- Actions -->
-          <template #actions>
-            <el-button type="primary" plain :icon="Plus" @click="openCreateDrawer"
-              >新增商品</el-button
+              <el-option label="未上架" :value="0" />
+              <el-option label="已上架" :value="1" />
+              <el-option label="已下架" :value="2" />
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" plain :icon="Search" @click="handleSearch"
+              >搜索</el-button
             >
-            <el-button plain :icon="Refresh" @click="loadProducts"
-              >刷新列表</el-button
+            <el-button plain :icon="Refresh" @click="handleReset"
+              >重置</el-button
             >
-          </template>
+          </el-form-item>
+        </el-form>
+      </template>
 
-          <!-- Table -->
-          <template #table>
-            <el-table
-              :data="tableData"
-              style="width: 100%"
-              height="100%"
-              v-loading="loading"
-              class="product-table"
-            >
-              <!-- 1. 商品ID列 -->
-              <el-table-column label="商品ID" width="100" align="center">
-                <template #default="scope">
-                  <span class="product-id-text">{{ scope.row.id }}</span>
-                </template>
-              </el-table-column>
+      <!-- Actions -->
+      <template #actions>
+        <el-button type="primary" plain :icon="Plus" @click="openCreateDrawer"
+          >新增商品</el-button
+        >
+        <el-button plain :icon="Refresh" @click="loadProducts"
+          >刷新列表</el-button
+        >
+      </template>
 
-              <!-- 2. 商品封面列 -->
-              <el-table-column label="封面" width="100" align="center">
-                <template #default="scope">
-                  <el-image
-                    class="table-cover-img"
-                    :src="resolveUrl(scope.row.coverUrl)"
-                    :preview-src-list="[resolveUrl(scope.row.coverUrl)]"
-                    preview-teleported
-                    fit="cover"
-                  >
-                    <template #error>
-                      <div class="image-error-slot">
-                        <span>加载失败</span>
-                      </div>
-                    </template>
-                  </el-image>
-                </template>
-              </el-table-column>
-
-              <!-- 3. 商品名称列 -->
-              <el-table-column label="商品名称" width="240" align="left">
-                <template #default="scope">
-                  <div class="product-name-cell">
-                    <div class="product-title">{{ scope.row.productName }}</div>
+      <!-- Table -->
+      <template #table>
+        <el-table
+          :data="tableData"
+          style="width: 100%"
+          height="100%"
+          v-loading="loading"
+          class="product-table"
+        >
+          <!-- 2. 商品封面列 -->
+          <el-table-column label="封面" width="100" align="center">
+            <template #default="scope">
+              <el-image
+                class="table-cover-img"
+                :src="resolveUrl(scope.row.coverUrl)"
+                :preview-src-list="[resolveUrl(scope.row.coverUrl)]"
+                preview-teleported
+                fit="cover"
+              >
+                <template #error>
+                  <div class="image-error-slot">
+                    <span>加载失败</span>
                   </div>
                 </template>
-              </el-table-column>
+              </el-image>
+            </template>
+          </el-table-column>
 
-              <!-- 2. 商品分类列（分列显示） -->
-              <el-table-column label="商品分类" width="140" align="center">
-                <template #default="scope">
-                  <el-tag type="info" size="small" effect="plain">
-                    {{ scope.row.categoryName || "未分类" }}
-                  </el-tag>
-                </template>
-              </el-table-column>
+          <!-- 3. 商品名称列 -->
+          <el-table-column label="商品名称" width="240" align="left">
+            <template #default="scope">
+              <div class="product-name-cell">
+                <div class="product-title">{{ scope.row.productName }}</div>
+              </div>
+            </template>
+          </el-table-column>
 
-              <!-- 3. 库存列（分列显示） -->
-              <el-table-column label="总库存" width="100" align="center">
-                <template #default="scope">
-                  <span
-                    :class="[
-                      'stock-text',
-                      { 'low-stock': scope.row.totalStock <= 10 },
-                    ]"
-                  >
-                    {{ scope.row.totalStock }}
-                  </span>
-                </template>
-              </el-table-column>
+          <!-- 2. 商品分类列（分列显示） -->
+          <el-table-column label="商品分类" width="140" align="center">
+            <template #default="scope">
+              <el-tag type="info" size="small" effect="plain">
+                {{ scope.row.categoryName || "未分类" }}
+              </el-tag>
+            </template>
+          </el-table-column>
 
-              <el-table-column
-                prop="status"
-                label="状态"
-                width="120"
-                align="center"
+          <!-- 3. 库存列（分列显示） -->
+          <el-table-column label="总库存" width="100" align="center">
+            <template #default="scope">
+              <span
+                :class="[
+                  'stock-text',
+                  { 'low-stock': scope.row.totalStock <= 10 },
+                ]"
               >
-                <template #default="scope">
-                  <el-tag
-                    :type="scope.row.status === 1 ? 'success' : scope.row.status === 2 ? 'danger' : 'info'"
-                    size="default"
-                    effect="light"
-                  >
-                    {{ scope.row.status === 1 ? "已上架" : scope.row.status === 2 ? "已下架" : "未上架" }}
-                  </el-tag>
-                </template>
-              </el-table-column>
+                {{ scope.row.totalStock }}
+              </span>
+            </template>
+          </el-table-column>
 
-              <el-table-column
-                prop="updateTime"
-                label="更新时间"
-                width="200"
-                align="center"
+          <el-table-column
+            prop="status"
+            label="状态"
+            width="120"
+            align="center"
+          >
+            <template #default="scope">
+              <el-tag
+                :type="
+                  scope.row.status === 1
+                    ? 'success'
+                    : scope.row.status === 2
+                      ? 'danger'
+                      : 'info'
+                "
+                size="default"
+                effect="light"
               >
-                <template #default="scope">
-                  <span>{{ formatDate(scope.row.updateTime) }}</span>
-                </template>
-              </el-table-column>
+                {{
+                  scope.row.status === 1
+                    ? "已上架"
+                    : scope.row.status === 2
+                      ? "已下架"
+                      : "未上架"
+                }}
+              </el-tag>
+            </template>
+          </el-table-column>
 
-              <el-table-column
-                label="操作"
-                width="220"
-                align="center"
-                fixed="right"
+          <el-table-column
+            prop="updateTime"
+            label="更新时间"
+            width="200"
+            align="center"
+          >
+            <template #default="scope">
+              <span>{{ formatDate(scope.row.updateTime) }}</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            label="操作"
+            width="220"
+            align="center"
+            fixed="right"
+          >
+            <template #default="scope">
+              <el-button
+                link
+                type="primary"
+                size="default"
+                @click="handleView(scope.row)"
               >
-                <template #default="scope">
-                  <el-button
-                    link
-                    type="primary"
-                    size="default"
-                    @click="handleView(scope.row)"
-                  >
-                    <el-icon><View /></el-icon>详情
-                  </el-button>
-                  <el-button
-                    link
-                    type="primary"
-                    size="default"
-                    @click="handleEdit(scope.row)"
-                  >
-                    <el-icon><Edit /></el-icon>编辑
-                  </el-button>
-                  <el-button
-                    link
-                    type="danger"
-                    size="default"
-                    :disabled="scope.row.status !== 1"
-                    @click="handleDelist(scope.row)"
-                  >
-                    <el-icon><SwitchButton /></el-icon>下架
-                  </el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-          </template>
+                <el-icon><View /></el-icon>详情
+              </el-button>
+              <el-button
+                link
+                type="primary"
+                size="default"
+                @click="handleEdit(scope.row)"
+              >
+                <el-icon><Edit /></el-icon>编辑
+              </el-button>
+              <el-button
+                link
+                type="danger"
+                size="default"
+                :disabled="scope.row.status !== 1"
+                @click="handleDelist(scope.row)"
+              >
+                <el-icon><SwitchButton /></el-icon>下架
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </template>
 
-          <!-- Pagination -->
-          <template #pagination>
-            <div style="display: flex; justify-content: flex-end;">
-              <el-pagination
-                v-model:current-page="pageNum"
-                v-model:page-size="pageSize"
-                :page-sizes="[5, 10, 20, 50]"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="total"
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-              />
-            </div>
-          </template>
-        </CommonLayout>
+      <!-- Pagination -->
+      <template #pagination>
+        <div style="display: flex; justify-content: flex-end">
+          <el-pagination
+            v-model:current-page="pageNum"
+            v-model:page-size="pageSize"
+            :page-sizes="[5, 10, 20, 50]"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+          />
+        </div>
+      </template>
+    </CommonLayout>
 
     <!-- Create/Edit Dialog -->
     <el-dialog
@@ -254,13 +254,17 @@
                 <div v-else class="cover-upload-placeholder">
                   <el-icon class="cover-upload-icon"><Picture /></el-icon>
                   <span class="upload-text">点击上传主图</span>
-                  <span class="cover-upload-hint">建议 1:1 分辨率，小于 5MB</span>
+                  <span class="cover-upload-hint"
+                    >建议 1:1 分辨率，小于 5MB</span
+                  >
                 </div>
                 <div v-if="coverUploading" class="img-upload-loading">
                   <el-icon class="is-loading"><Loading /></el-icon>
                 </div>
                 <div v-if="productForm.coverUrl" class="cover-hover-mask">
-                  <span class="mask-action"><el-icon><Edit /></el-icon> 更换封面</span>
+                  <span class="mask-action"
+                    ><el-icon><Edit /></el-icon> 更换封面</span
+                  >
                 </div>
               </div>
               <input
@@ -292,7 +296,10 @@
                   <div v-else class="carousel-card-placeholder">
                     <el-icon><Picture /></el-icon>
                   </div>
-                  <div v-if="carouselUploading[index]" class="img-upload-loading">
+                  <div
+                    v-if="carouselUploading[index]"
+                    class="img-upload-loading"
+                  >
                     <el-icon class="is-loading"><Loading /></el-icon>
                   </div>
                   <div class="carousel-card-actions">
@@ -351,7 +358,7 @@
                   label: 'categoryName',
                   children: 'children',
                   emitPath: false,
-                  checkStrictly: true
+                  checkStrictly: true,
                 }"
                 placeholder="请选择分类"
                 filterable
@@ -364,9 +371,15 @@
             <div class="specs-section-wrapper">
               <div class="specs-section-header">
                 <span class="specs-section-title">
-                  <el-icon class="specs-title-icon"><List /></el-icon> 商品规格配置 (价格、库存、图片)
+                  <el-icon class="specs-title-icon"><List /></el-icon>
+                  商品规格配置 (价格、库存、图片)
                 </span>
-                <el-button type="primary" size="small" plain :icon="Plus" @click="addSpec"
+                <el-button
+                  type="primary"
+                  size="small"
+                  plain
+                  :icon="Plus"
+                  @click="addSpec"
                   >添加规格项</el-button
                 >
               </div>
@@ -414,7 +427,9 @@
                       type="file"
                       accept="image/*"
                       style="display: none"
-                      @change="(e) => handleImgFileChange(e, 'spec', scope.$index)"
+                      @change="
+                        (e) => handleImgFileChange(e, 'spec', scope.$index)
+                      "
                     />
                   </template>
                 </el-table-column>
@@ -463,14 +478,14 @@
                       size="default"
                       @click="removeSpec(scope.$index)"
                       class="spec-delete-btn"
-                    >删除</el-button>
+                      >删除</el-button
+                    >
                   </template>
                 </el-table-column>
               </el-table>
             </div>
           </div>
         </div>
-
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -511,10 +526,22 @@
                     />
                     <div class="detail-status-tag">
                       <el-tag
-                        :type="detailData.status === 1 ? 'success' : detailData.status === 2 ? 'danger' : 'info'"
+                        :type="
+                          detailData.status === 1
+                            ? 'success'
+                            : detailData.status === 2
+                              ? 'danger'
+                              : 'info'
+                        "
                         effect="dark"
                       >
-                        {{ detailData.status === 1 ? "已上架" : detailData.status === 2 ? "已下架" : "未上架" }}
+                        {{
+                          detailData.status === 1
+                            ? "已上架"
+                            : detailData.status === 2
+                              ? "已下架"
+                              : "未上架"
+                        }}
                       </el-tag>
                     </div>
                   </div>
@@ -523,7 +550,9 @@
                 <!-- Carousel pictures display -->
                 <div
                   class="detail-card carousel-card"
-                  v-if="detailData.carouselUrls && detailData.carouselUrls.length"
+                  v-if="
+                    detailData.carouselUrls && detailData.carouselUrls.length
+                  "
                 >
                   <div class="detail-card-title">轮播展示图</div>
                   <div class="detail-carousels">
@@ -533,7 +562,9 @@
                       :src="resolveUrl(url)"
                       fit="cover"
                       class="carousel-thumb"
-                      :preview-src-list="detailData.carouselUrls.map(resolveUrl)"
+                      :preview-src-list="
+                        detailData.carouselUrls.map(resolveUrl)
+                      "
                       :initial-index="idx"
                       preview-teleported
                     />
@@ -545,10 +576,12 @@
               <div class="detail-right-section">
                 <div class="detail-card info-card">
                   <div class="detail-card-title">基本信息</div>
-                  
+
                   <div class="detail-name-wrapper">
                     <div class="detail-name-label">商品名称</div>
-                    <h3 class="detail-product-name">{{ detailData.productName }}</h3>
+                    <h3 class="detail-product-name">
+                      {{ detailData.productName }}
+                    </h3>
                   </div>
 
                   <div class="info-grid">
@@ -566,7 +599,9 @@
                     </div>
                     <div class="info-item">
                       <span class="info-label">总库存</span>
-                      <span class="info-value">{{ detailData.totalStock }} 件</span>
+                      <span class="info-value"
+                        >{{ detailData.totalStock }} 件</span
+                      >
                     </div>
                     <div class="info-item">
                       <span class="info-label">创建时间</span>
@@ -586,7 +621,8 @@
                 <!-- Specifications Table -->
                 <div class="detail-card specs-card">
                   <div class="detail-card-title">
-                    <el-icon class="specs-title-icon"><List /></el-icon> 商品规格配置 ({{
+                    <el-icon class="specs-title-icon"><List /></el-icon>
+                    商品规格配置 ({{
                       detailData.specs ? detailData.specs.length : 0
                     }})
                   </div>
@@ -597,7 +633,11 @@
                     border
                     size="default"
                   >
-                    <el-table-column label="规格图片" width="100" align="center">
+                    <el-table-column
+                      label="规格图片"
+                      width="100"
+                      align="center"
+                    >
                       <template #default="scope">
                         <el-image
                           :src="resolveUrl(scope.row.imageUrl)"
@@ -610,11 +650,20 @@
                         <span v-else class="no-img-text">无图</span>
                       </template>
                     </el-table-column>
-                    <el-table-column prop="specName" label="规格属性名称" min-width="200" />
-                    <el-table-column prop="price" label="单价 (元)" min-width="140">
+                    <el-table-column
+                      prop="specName"
+                      label="规格属性名称"
+                      min-width="200"
+                    />
+                    <el-table-column
+                      prop="price"
+                      label="单价 (元)"
+                      min-width="140"
+                    >
                       <template #default="scope">
                         <span class="price-text"
-                          >¥ {{ (Number(scope.row.price) || 0).toFixed(2) }}</span
+                          >¥
+                          {{ (Number(scope.row.price) || 0).toFixed(2) }}</span
                         >
                       </template>
                     </el-table-column>
@@ -640,7 +689,12 @@
         <!-- Tab 2: 变更记录 -->
         <el-tab-pane label="变更记录" name="logs">
           <div class="change-logs-container" v-loading="changeLogsLoading">
-            <el-table :data="changeLogs" border style="width: 100%" max-height="550">
+            <el-table
+              :data="changeLogs"
+              border
+              style="width: 100%"
+              max-height="550"
+            >
               <el-table-column label="变更时间" width="180" align="center">
                 <template #default="scope">
                   <span>{{ formatDate(scope.row.createTime) }}</span>
@@ -648,9 +702,22 @@
               </el-table-column>
               <el-table-column label="操作人" width="180" align="center">
                 <template #default="scope">
-                  <span style="font-weight: 600;">{{ getOperatorNameText(scope.row) }}</span>
-                  <el-tag size="small" type="info" style="margin-left: 6px;" v-if="scope.row.operatorType !== undefined">
-                    {{ scope.row.operatorType === 1 ? '商家' : scope.row.operatorType === 2 ? '平台' : '系统' }}
+                  <span style="font-weight: 600">{{
+                    getOperatorNameText(scope.row)
+                  }}</span>
+                  <el-tag
+                    size="small"
+                    type="info"
+                    style="margin-left: 6px"
+                    v-if="scope.row.operatorType !== undefined"
+                  >
+                    {{
+                      scope.row.operatorType === 1
+                        ? "商家"
+                        : scope.row.operatorType === 2
+                          ? "平台"
+                          : "系统"
+                    }}
                   </el-tag>
                 </template>
               </el-table-column>
@@ -663,29 +730,63 @@
               </el-table-column>
               <el-table-column label="变更类型" width="100" align="center">
                 <template #default="scope">
-                  <el-tag :type="getChangeTypeTag(scope.row.changeType)" effect="light">
+                  <el-tag
+                    :type="getChangeTypeTag(scope.row.changeType)"
+                    effect="light"
+                  >
                     {{ getChangeTypeText(scope.row.changeType) }}
                   </el-tag>
                 </template>
               </el-table-column>
-              <el-table-column prop="fieldName" label="变更字段" width="130" align="center" show-overflow-tooltip>
+              <el-table-column
+                prop="fieldName"
+                label="变更字段"
+                width="130"
+                align="center"
+                show-overflow-tooltip
+              >
                 <template #default="scope">
-                  <span style="color: #475569; font-weight: 600;">{{ scope.row.fieldName || '-' }}</span>
+                  <span style="color: #475569; font-weight: 600">{{
+                    scope.row.fieldName || "-"
+                  }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="变更前" min-width="150" align="left" show-overflow-tooltip>
+              <el-table-column
+                label="变更前"
+                min-width="150"
+                align="left"
+                show-overflow-tooltip
+              >
                 <template #default="scope">
-                  <span class="value-before">{{ formatChangeValue(scope.row.fieldName, scope.row.beforeValue) }}</span>
+                  <span class="value-before">{{
+                    formatChangeValue(
+                      scope.row.fieldName,
+                      scope.row.beforeValue,
+                    )
+                  }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="变更后" min-width="150" align="left" show-overflow-tooltip>
+              <el-table-column
+                label="变更后"
+                min-width="150"
+                align="left"
+                show-overflow-tooltip
+              >
                 <template #default="scope">
-                  <span class="value-after">{{ formatChangeValue(scope.row.fieldName, scope.row.afterValue) }}</span>
+                  <span class="value-after">{{
+                    formatChangeValue(scope.row.fieldName, scope.row.afterValue)
+                  }}</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="reason" label="变更原因" min-width="150" align="left" show-overflow-tooltip>
+              <el-table-column
+                prop="reason"
+                label="变更原因"
+                min-width="150"
+                align="left"
+                show-overflow-tooltip
+              >
                 <template #default="scope">
-                  <span>{{ scope.row.reason || '-' }}</span>
+                  <span>{{ scope.row.reason || "-" }}</span>
                 </template>
               </el-table-column>
             </el-table>
@@ -736,7 +837,7 @@ import { baseUrl } from "@/utils/baseUrl.js";
 import CommonLayout from "@/components/commonLayout.vue";
 
 defineOptions({
-  name: "Product"
+  name: "Product",
 });
 
 // Resolve relative image URL to absolute
@@ -796,9 +897,6 @@ const loadCategoryTree = async () => {
     console.error("加载商品分类树失败:", err);
   }
 };
-
-
-
 
 // Image upload helpers
 const coverInputRef = ref(null);
@@ -1012,13 +1110,14 @@ const getRelatedBizTypeText = (type) => {
 const getOperatorNameText = (row) => {
   if (row.operatorName) return row.operatorName;
   if (row.operatorType === 3) return "系统自动";
-  if (row.operatorId !== null && row.operatorId !== undefined) return `ID:${row.operatorId}`;
+  if (row.operatorId !== null && row.operatorId !== undefined)
+    return `ID:${row.operatorId}`;
   return "系统";
 };
 
 const formatChangeValue = (fieldName, value) => {
   if (value === null || value === undefined || value === "") return "空";
-  
+
   const field = (fieldName || "").toLowerCase();
   // Check if field is status related
   if (field === "status" || field.includes("状态")) {
@@ -1027,10 +1126,9 @@ const formatChangeValue = (fieldName, value) => {
     if (valStr === "1") return "已上架";
     if (valStr === "2") return "已下架";
   }
-  
+
   return value;
 };
-
 
 // Create/Edit form dialog state
 const formDialogVisible = ref(false);
@@ -1157,13 +1255,13 @@ const submitForm = async () => {
 
     // Filters empty string in carousels
     const cleanCarousels = productForm.carouselUrls.filter(
-      (url) => url.trim() !== ""
+      (url) => url.trim() !== "",
     );
 
     // Sum stock
     const calculatedTotalStock = productForm.specs.reduce(
       (acc, curr) => acc + (curr.stock || 0),
-      0
+      0,
     );
 
     const payload = {
@@ -1214,15 +1312,11 @@ const submitForm = async () => {
 
 // 下架商品
 const handleDelist = async (row) => {
-  ElMessageBox.confirm(
-    `确定要下架商品「${row.productName}」吗？`,
-    "提示",
-    {
-      confirmButtonText: "确定下架",
-      cancelButtonText: "取消",
-      type: "warning",
-    }
-  )
+  ElMessageBox.confirm(`确定要下架商品「${row.productName}」吗？`, "提示", {
+    confirmButtonText: "确定下架",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
     .then(async () => {
       try {
         const res = await delistProduct(row.id);
@@ -1248,7 +1342,7 @@ onMounted(() => {
 <style scoped>
 /* Main Layout Container */
 .page-container {
-  flex: 1;
+  height: 100%;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -1262,12 +1356,6 @@ onMounted(() => {
 
 .btn-create:hover {
   background: linear-gradient(135deg, #008655 0%, #006b43 100%);
-}
-
-/* Search panel styling */
-.search-form :deep(.el-form-item) {
-  margin-bottom: 0;
-  margin-right: 18px;
 }
 
 .product-table {
@@ -1337,7 +1425,9 @@ onMounted(() => {
   border: 1px solid #f1f5f9;
   border-radius: 12px;
   padding: 16px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.02),
+    0 1px 2px -1px rgba(0, 0, 0, 0.02);
 }
 
 .media-card-title {
@@ -1408,7 +1498,9 @@ onMounted(() => {
 .cover-upload-icon {
   font-size: 32px;
   color: #94a3b8;
-  transition: color 0.25s ease, transform 0.25s ease;
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease;
 }
 
 .cover-upload-zone:hover .cover-upload-icon {
@@ -1513,7 +1605,9 @@ onMounted(() => {
 .product-form :deep(.el-textarea__inner:focus),
 .product-form :deep(.el-select__wrapper.is-focus),
 .product-form :deep(.el-select .el-input__wrapper.is-focus) {
-  box-shadow: 0 0 0 1px #00a86b inset, 0 0 0 3px rgba(0, 168, 107, 0.1) !important;
+  box-shadow:
+    0 0 0 1px #00a86b inset,
+    0 0 0 3px rgba(0, 168, 107, 0.1) !important;
   background-color: transparent;
 }
 
@@ -1522,7 +1616,6 @@ onMounted(() => {
   font-family: inherit;
   line-height: 1.5;
 }
-
 
 /* Carousel Section styling */
 .carousel-upload-grid {
@@ -1749,7 +1842,9 @@ onMounted(() => {
   border: 1px solid #f1f5f9;
   border-radius: 12px;
   padding: 16px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.02),
+    0 1px 2px -1px rgba(0, 0, 0, 0.02);
 }
 
 .detail-card-title {

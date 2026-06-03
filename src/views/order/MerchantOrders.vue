@@ -2,7 +2,12 @@
   <div class="page-container merchant-orders-page">
     <CommonLayout>
       <template #search>
-        <el-form :inline="true" :model="searchForm" class="search-form" size="default">
+        <el-form
+          :inline="true"
+          :model="searchForm"
+          class="search-form"
+          size="default"
+        >
           <el-form-item label="订单状态">
             <el-select
               v-model="searchForm.status"
@@ -17,22 +22,31 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" plain :icon="Search" :loading="loading" @click="handleSearch">
+            <el-button
+              type="primary"
+              plain
+              :icon="Search"
+              :loading="loading"
+              @click="handleSearch"
+            >
               搜索
             </el-button>
-            <el-button plain :icon="Refresh" @click="handleReset">重置</el-button>
+            <el-button plain :icon="Refresh" @click="handleReset"
+              >重置</el-button
+            >
           </el-form-item>
         </el-form>
       </template>
 
       <template #actions>
         <div class="page-toolbar">
-          <div>
-            <h2 class="page-title">全部订单</h2>
-            <p class="page-subtitle">查看当前商家的全部订单，支持按未支付、已支付、已取消筛选。</p>
-          </div>
           <div class="toolbar-actions">
-            <el-button plain :icon="Refresh" :loading="loading" @click="loadOrders">
+            <el-button
+              plain
+              :icon="Refresh"
+              :loading="loading"
+              @click="loadOrders"
+            >
               刷新列表
             </el-button>
           </div>
@@ -48,28 +62,45 @@
           class="merchant-orders-table"
           empty-text="暂无订单"
         >
-          <el-table-column label="订单编号" width="230" align="left" show-overflow-tooltip>
+          <el-table-column
+            label="订单编号"
+            width="230"
+            align="left"
+            show-overflow-tooltip
+          >
             <template #default="scope">
               <span class="order-no-text">{{ scope.row.orderNo }}</span>
             </template>
           </el-table-column>
 
-          <el-table-column label="商品信息" min-width="260" align="left" show-overflow-tooltip>
+          <el-table-column
+            label="商品信息"
+            min-width="260"
+            align="left"
+            show-overflow-tooltip
+          >
             <template #default="scope">
               <div class="product-cell">
                 <el-image
                   v-if="scope.row.productCoverSnapshot"
                   class="product-cover"
                   :src="resolveUrl(scope.row.productCoverSnapshot)"
-                  :preview-src-list="[resolveUrl(scope.row.productCoverSnapshot)]"
+                  :preview-src-list="[
+                    resolveUrl(scope.row.productCoverSnapshot),
+                  ]"
                   preview-teleported
                   fit="cover"
                 />
-                <div v-else class="product-cover product-cover--empty">暂无图片</div>
+                <div v-else class="product-cover product-cover--empty">
+                  暂无图片
+                </div>
                 <div class="product-info">
-                  <span class="product-name">{{ scope.row.productNameSnapshot || "-" }}</span>
+                  <span class="product-name">{{
+                    scope.row.productNameSnapshot || "-"
+                  }}</span>
                   <span class="product-meta">
-                    {{ scope.row.specNameSnapshot || "默认规格" }} / 数量 {{ scope.row.quantity || 0 }}
+                    {{ scope.row.specNameSnapshot || "默认规格" }} / 数量
+                    {{ scope.row.quantity || 0 }}
                   </span>
                 </div>
               </div>
@@ -78,7 +109,9 @@
 
           <el-table-column label="订单金额" width="130" align="center">
             <template #default="scope">
-              <span class="amount-text">{{ formatCurrency(scope.row.orderAmount) }}</span>
+              <span class="amount-text">{{
+                formatCurrency(scope.row.orderAmount)
+              }}</span>
             </template>
           </el-table-column>
 
@@ -90,7 +123,10 @@
 
           <el-table-column label="支付状态" width="110" align="center">
             <template #default="scope">
-              <el-tag :type="getPayStatusTagType(scope.row.payStatus)" effect="light">
+              <el-tag
+                :type="getPayStatusTagType(scope.row.payStatus)"
+                effect="light"
+              >
                 {{ getPayStatusText(scope.row.payStatus) }}
               </el-tag>
             </template>
@@ -98,7 +134,10 @@
 
           <el-table-column label="订单状态" width="110" align="center">
             <template #default="scope">
-              <el-tag :type="getOrderStatusTagType(scope.row.status)" effect="light">
+              <el-tag
+                :type="getOrderStatusTagType(scope.row.status)"
+                effect="light"
+              >
                 {{ getOrderStatusText(scope.row.status) }}
               </el-tag>
             </template>
@@ -110,9 +149,17 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="运单号" min-width="180" align="left" show-overflow-tooltip>
+          <el-table-column
+            label="运单号"
+            min-width="180"
+            align="left"
+            show-overflow-tooltip
+          >
             <template #default="scope">
-              <div v-if="getTrackingList(scope.row).length" class="tracking-cell">
+              <div
+                v-if="getTrackingList(scope.row).length"
+                class="tracking-cell"
+              >
                 <el-tag
                   v-for="trackingNo in getTrackingList(scope.row)"
                   :key="trackingNo"
@@ -127,9 +174,20 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="操作" width="190" align="center" fixed="right">
+          <el-table-column
+            label="操作"
+            width="190"
+            align="center"
+            fixed="right"
+          >
             <template #default="scope">
-              <el-button link type="primary" size="default" :icon="View" @click="handleView(scope.row)">
+              <el-button
+                link
+                type="primary"
+                size="default"
+                :icon="View"
+                @click="handleView(scope.row)"
+              >
                 详情
               </el-button>
               <el-button
@@ -290,7 +348,13 @@ const handleOpenShip = async (row) => {
 
   try {
     const detailRes = await getMerchantOrderDetail(row.orderNo);
-    if (!(detailRes && (detailRes.code === 200 || detailRes.code === 0) && detailRes.data)) {
+    if (
+      !(
+        detailRes &&
+        (detailRes.code === 200 || detailRes.code === 0) &&
+        detailRes.data
+      )
+    ) {
       ElMessage.error(detailRes?.message || "获取发货订单详情失败");
       return;
     }
@@ -308,8 +372,13 @@ const handleOpenShip = async (row) => {
       addressId: detail.addressId,
     });
 
-    if (sameAddressRes && (sameAddressRes.code === 200 || sameAddressRes.code === 0)) {
-      sameAddressOrders.value = Array.isArray(sameAddressRes.data) ? sameAddressRes.data : [];
+    if (
+      sameAddressRes &&
+      (sameAddressRes.code === 200 || sameAddressRes.code === 0)
+    ) {
+      sameAddressOrders.value = Array.isArray(sameAddressRes.data)
+        ? sameAddressRes.data
+        : [];
     } else {
       sameAddressOrders.value = [detail];
       ElMessage.error(sameAddressRes?.message || "查询同地址订单失败");
@@ -405,19 +474,13 @@ onMounted(() => {
   loadOrders();
 });
 </script>
-
 <style scoped>
 .page-container {
-  height: calc(100vh - 110px);
+  height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-}
-
-.search-form {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  row-gap: 8px;
+  overflow: hidden;
 }
 
 .page-toolbar {

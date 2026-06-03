@@ -5,10 +5,17 @@
         <div class="page-toolbar">
           <div>
             <h2 class="page-title">待发货订单</h2>
-            <p class="page-subtitle">处理当前商家的待发货订单，支持同地址订单合并发货。</p>
+            <p class="page-subtitle">
+              处理当前商家的待发货订单，支持同地址订单合并发货。
+            </p>
           </div>
           <div class="toolbar-actions">
-            <el-button plain :icon="Refresh" :loading="loading" @click="loadOrders">
+            <el-button
+              plain
+              :icon="Refresh"
+              :loading="loading"
+              @click="loadOrders"
+            >
               刷新列表
             </el-button>
           </div>
@@ -24,27 +31,45 @@
           class="wait-ship-table"
           empty-text="暂无待发货订单"
         >
-          <el-table-column label="订单编号" width="230" align="left" show-overflow-tooltip>
+          <el-table-column
+            label="订单编号"
+            width="230"
+            align="left"
+            show-overflow-tooltip
+          >
             <template #default="scope">
               <span class="order-no-text">{{ scope.row.orderNo }}</span>
             </template>
           </el-table-column>
 
-          <el-table-column label="商品信息" min-width="260" align="left" show-overflow-tooltip>
+          <el-table-column
+            label="商品信息"
+            min-width="260"
+            align="left"
+            show-overflow-tooltip
+          >
             <template #default="scope">
               <div class="product-cell">
                 <el-image
                   v-if="scope.row.productCoverSnapshot"
                   class="product-cover"
                   :src="resolveUrl(scope.row.productCoverSnapshot)"
-                  :preview-src-list="[resolveUrl(scope.row.productCoverSnapshot)]"
+                  :preview-src-list="[
+                    resolveUrl(scope.row.productCoverSnapshot),
+                  ]"
                   preview-teleported
                   fit="cover"
                 />
-                <div v-else class="product-cover product-cover--empty">暂无图片</div>
+                <div v-else class="product-cover product-cover--empty">
+                  暂无图片
+                </div>
                 <div class="product-info">
-                  <span class="product-name">{{ scope.row.productNameSnapshot || "-" }}</span>
-                  <span class="product-meta">商品ID：{{ scope.row.productId || "-" }}</span>
+                  <span class="product-name">{{
+                    scope.row.productNameSnapshot || "-"
+                  }}</span>
+                  <span class="product-meta"
+                    >商品ID：{{ scope.row.productId || "-" }}</span
+                  >
                 </div>
               </div>
             </template>
@@ -58,7 +83,9 @@
 
           <el-table-column label="订单金额" width="130" align="center">
             <template #default="scope">
-              <span class="amount-text">{{ formatCurrency(scope.row.orderAmount) }}</span>
+              <span class="amount-text">{{
+                formatCurrency(scope.row.orderAmount)
+              }}</span>
             </template>
           </el-table-column>
 
@@ -70,7 +97,10 @@
 
           <el-table-column label="支付状态" width="110" align="center">
             <template #default="scope">
-              <el-tag :type="getPayStatusTagType(scope.row.payStatus)" effect="light">
+              <el-tag
+                :type="getPayStatusTagType(scope.row.payStatus)"
+                effect="light"
+              >
                 {{ getPayStatusText(scope.row.payStatus) }}
               </el-tag>
             </template>
@@ -84,9 +114,20 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="操作" width="190" align="center" fixed="right">
+          <el-table-column
+            label="操作"
+            width="190"
+            align="center"
+            fixed="right"
+          >
             <template #default="scope">
-              <el-button link type="primary" size="default" :icon="View" @click="handleView(scope.row)">
+              <el-button
+                link
+                type="primary"
+                size="default"
+                :icon="View"
+                @click="handleView(scope.row)"
+              >
                 详情
               </el-button>
               <el-button
@@ -229,7 +270,13 @@ const handleOpenShip = async (row) => {
 
   try {
     const detailRes = await getMerchantOrderDetail(row.orderNo);
-    if (!(detailRes && (detailRes.code === 200 || detailRes.code === 0) && detailRes.data)) {
+    if (
+      !(
+        detailRes &&
+        (detailRes.code === 200 || detailRes.code === 0) &&
+        detailRes.data
+      )
+    ) {
       ElMessage.error(detailRes?.message || "获取发货订单详情失败");
       return;
     }
@@ -247,8 +294,13 @@ const handleOpenShip = async (row) => {
       addressId: detail.addressId,
     });
 
-    if (sameAddressRes && (sameAddressRes.code === 200 || sameAddressRes.code === 0)) {
-      sameAddressOrders.value = Array.isArray(sameAddressRes.data) ? sameAddressRes.data : [];
+    if (
+      sameAddressRes &&
+      (sameAddressRes.code === 200 || sameAddressRes.code === 0)
+    ) {
+      sameAddressOrders.value = Array.isArray(sameAddressRes.data)
+        ? sameAddressRes.data
+        : [];
     } else {
       sameAddressOrders.value = [detail];
       ElMessage.error(sameAddressRes?.message || "查询同地址订单失败");
@@ -326,7 +378,8 @@ onMounted(() => {
 
 <style scoped>
 .page-container {
-  height: calc(100vh - 110px);
+  height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }

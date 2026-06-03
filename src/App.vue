@@ -29,4 +29,44 @@ body {
 #app {
   height: 100vh;
 }
+
+.el-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+.el-form > .el-form-item {
+  min-width: 0;
+  margin: 0;
+}
+
+.el-form > .el-form-item .el-form-item__content,
+.el-form > .el-form-item .el-select,
+.el-form > .el-form-item .el-cascader,
+.el-form > .el-form-item .el-date-editor,
+.el-form > .el-form-item .el-input-number {
+  min-width: 0;
+  width: 100%;
+}
+
+.el-form.el-form--inline {
+  grid-template-columns: repeat(auto-fit, minmax(180px, max-content));
+  align-items: end;
+  justify-content: start;
+}
+
+.el-form.el-form--inline > .el-form-item {
+  width: 100%;
+}
+
+.el-form.el-form--inline > .el-form-item .el-form-item__content {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .el-form.el-form--inline {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 </style>

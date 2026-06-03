@@ -551,7 +551,8 @@ onMounted(() => {
 
 <style scoped>
 .page-container {
-  height: calc(100vh - 110px);
+  height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
