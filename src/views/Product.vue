@@ -59,12 +59,19 @@
 
       <!-- Actions -->
       <template #actions>
-        <el-button type="primary" plain :icon="Plus" @click="openCreateDrawer"
-          >新增商品</el-button
-        >
-        <el-button plain :icon="Refresh" @click="loadProducts"
-          >刷新列表</el-button
-        >
+        <div class="product-actions">
+          <div class="product-actions__buttons">
+            <el-button type="primary" plain :icon="Plus" @click="openCreateDrawer"
+              >新增商品</el-button
+            >
+            <el-button plain :icon="Refresh" @click="loadProducts"
+              >刷新列表</el-button
+            >
+          </div>
+          <span class="product-actions__hint">
+            补库存或减少库存不会下架，修改信息和价格会导致商品下架。
+          </span>
+        </div>
       </template>
 
       <!-- Table -->
@@ -479,6 +486,25 @@
                 </el-table-column>
               </el-table>
             </div>
+
+            <el-form-item label="商品副文本" prop="description">
+              <div class="rich-editor-wrapper">
+                <Toolbar
+                  :editor="editorRef"
+                  :default-config="toolbarConfig"
+                  mode="default"
+                  class="rich-editor-toolbar"
+                />
+                <Editor
+                  v-model="productForm.description"
+                  :default-config="editorConfig"
+                  mode="default"
+                  class="rich-editor"
+                  @on-created="handleEditorCreated"
+                  @on-destroyed="handleEditorDestroyed"
+                />
+              </div>
+            </el-form-item>
           </div>
         </div>
       </el-form>
@@ -676,6 +702,20 @@
                     />
                   </el-table>
                 </div>
+
+                <div class="detail-card description-card">
+                  <div class="detail-card-title">商品副文本</div>
+                  <div
+                    v-if="detailData.description"
+                    class="detail-description"
+                    v-html="detailData.description"
+                  ></div>
+                  <el-empty
+                    v-else
+                    description="暂无商品副文本"
+                    :image-size="72"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -798,8 +838,10 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, onMounted } from "vue";
+import { ref, reactive, onBeforeUnmount, onMounted, shallowRef } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
+import "@wangeditor/editor/dist/css/style.css";
+import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import {
   Shop,
   Menu,
@@ -836,6 +878,24 @@ defineOptions({
 });
 const loading = ref(false);
 const submitLoading = ref(false);
+const editorRef = shallowRef(null);
+
+const toolbarConfig = {};
+const editorConfig = {
+  placeholder: "请输入商品副文本，可填写商品卖点、使用说明、售后说明等内容",
+};
+
+const handleEditorCreated = (editor) => {
+  editorRef.value = editor;
+};
+
+const handleEditorDestroyed = () => {
+  editorRef.value = null;
+};
+
+onBeforeUnmount(() => {
+  editorRef.value?.destroy();
+});
 
 // Categories tree list
 const categories = ref([]);
@@ -1122,6 +1182,7 @@ const productForm = reactive({
   productName: "",
   coverUrl: "",
   carouselUrls: [""],
+  description: "",
   categoryId: "",
   categoryName: "",
   status: 0,
@@ -1146,6 +1207,7 @@ const openCreateDrawer = () => {
     productName: "",
     coverUrl: "",
     carouselUrls: [""],
+    description: "",
     categoryId: "",
     categoryName: "",
     status: 0,
@@ -1171,6 +1233,7 @@ const handleEdit = async (row) => {
           data.carouselUrls && data.carouselUrls.length
             ? [...data.carouselUrls]
             : [""],
+        description: data.description || "",
         categoryId: data.categoryId || "",
         categoryName: data.categoryName || "",
         status: data.status !== undefined ? data.status : 0,
@@ -1250,6 +1313,7 @@ const submitForm = async () => {
       productName: productForm.productName,
       coverUrl: productForm.coverUrl,
       carouselUrls: cleanCarousels,
+      description: productForm.description,
       categoryId: Number(productForm.categoryId) || 1,
       categoryName: productForm.categoryName,
       status: productForm.status,
@@ -1338,6 +1402,26 @@ onMounted(() => {
 
 .btn-create:hover {
   background: linear-gradient(135deg, #008655 0%, #006b43 100%);
+}
+
+.product-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.product-actions__buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.product-actions__hint {
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .product-table {
@@ -1597,6 +1681,23 @@ onMounted(() => {
   padding: 10px 14px;
   font-family: inherit;
   line-height: 1.5;
+}
+
+.rich-editor-wrapper {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.rich-editor-toolbar {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.rich-editor {
+  height: 260px;
+  overflow-y: auto;
 }
 
 /* Carousel Section styling */
@@ -1958,6 +2059,35 @@ onMounted(() => {
 
 .detail-specs-table :deep(td.el-table__cell) {
   padding: 8px 0;
+}
+
+.description-card {
+  overflow: hidden;
+}
+
+.detail-description {
+  min-height: 120px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #334155;
+  line-height: 1.7;
+  background: #f8fafc;
+}
+
+.detail-description :deep(p) {
+  margin: 0 0 10px;
+}
+
+.detail-description :deep(p:last-child) {
+  margin-bottom: 0;
+}
+
+.detail-description :deep(img) {
+  max-width: 100%;
+  border-radius: 8px;
 }
 
 .spec-thumb-img {
