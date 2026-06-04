@@ -61,7 +61,11 @@
       <template #actions>
         <div class="product-actions">
           <div class="product-actions__buttons">
-            <el-button type="primary" plain :icon="Plus" @click="openCreateDrawer"
+            <el-button
+              type="primary"
+              plain
+              :icon="Plus"
+              @click="openCreateDrawer"
               >新增商品</el-button
             >
             <el-button plain :icon="Refresh" @click="loadProducts"
@@ -528,195 +532,188 @@
       class="product-detail-dialog"
     >
       <template v-if="detailData">
-          <div class="product-detail">
-            <div class="detail-split-container">
-              <!-- Left side: Media Section -->
-              <div class="detail-left-section">
-                <!-- Cover image display -->
-                <div class="detail-card cover-card">
-                  <div class="detail-card-title">商品封面</div>
-                  <div class="detail-cover-wrapper">
-                    <el-image
-                      :src="getImageUrl(detailData.coverUrl)"
-                      :preview-src-list="[getImageUrl(detailData.coverUrl)]"
-                      preview-teleported
-                      fit="cover"
-                      class="detail-cover"
-                    />
-                    <div class="detail-status-tag">
-                      <el-tag
-                        :type="
-                          detailData.status === 1
-                            ? 'success'
-                            : detailData.status === 2
-                              ? 'danger'
-                              : 'info'
-                        "
-                        effect="dark"
-                      >
-                        {{
-                          detailData.status === 1
-                            ? "已上架"
-                            : detailData.status === 2
-                              ? "已下架"
-                              : "未上架"
-                        }}
-                      </el-tag>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Carousel pictures display -->
-                <div
-                  class="detail-card carousel-card"
-                  v-if="
-                    detailData.carouselUrls && detailData.carouselUrls.length
-                  "
-                >
-                  <div class="detail-card-title">轮播展示图</div>
-                  <div class="detail-carousels">
-                    <el-image
-                      v-for="(url, idx) in detailData.carouselUrls"
-                      :key="idx"
-                      :src="getImageUrl(url)"
-                      fit="cover"
-                      class="carousel-thumb"
-                      :preview-src-list="
-                        detailData.carouselUrls.map(getImageUrl)
+        <div class="product-detail">
+          <div class="detail-split-container">
+            <!-- Left side: Media Section -->
+            <div class="detail-left-section">
+              <!-- Cover image display -->
+              <div class="detail-card cover-card">
+                <div class="detail-card-title">商品封面</div>
+                <div class="detail-cover-wrapper">
+                  <el-image
+                    :src="getImageUrl(detailData.coverUrl)"
+                    :preview-src-list="[getImageUrl(detailData.coverUrl)]"
+                    preview-teleported
+                    fit="cover"
+                    class="detail-cover"
+                  />
+                  <div class="detail-status-tag">
+                    <el-tag
+                      :type="
+                        detailData.status === 1
+                          ? 'success'
+                          : detailData.status === 2
+                            ? 'danger'
+                            : 'info'
                       "
-                      :initial-index="idx"
-                      preview-teleported
-                    />
+                      effect="dark"
+                    >
+                      {{
+                        detailData.status === 1
+                          ? "已上架"
+                          : detailData.status === 2
+                            ? "已下架"
+                            : "未上架"
+                      }}
+                    </el-tag>
                   </div>
                 </div>
               </div>
 
-              <!-- Right side: Basic Information -->
-              <div class="detail-right-section">
-                <div class="detail-card info-card">
-                  <div class="detail-card-title">基本信息</div>
-
-                  <div class="detail-name-wrapper">
-                    <div class="detail-name-label">商品名称</div>
-                    <h3 class="detail-product-name">
-                      {{ detailData.productName }}
-                    </h3>
-                  </div>
-
-                  <div class="info-grid">
-                    <div class="info-item">
-                      <span class="info-label">商品 ID</span>
-                      <span class="info-value">{{ detailData.id }}</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">商品分类</span>
-                      <span class="info-value">
-                        <el-tag type="info" size="small" effect="plain">{{
-                          detailData.categoryName || "未分类"
-                        }}</el-tag>
-                      </span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">总库存</span>
-                      <span class="info-value"
-                        >{{ detailData.totalStock }} 件</span
-                      >
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">创建时间</span>
-                      <span class="info-value">{{
-                        formatDate(detailData.createTime)
-                      }}</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">更新时间</span>
-                      <span class="info-value">{{
-                        formatDate(detailData.updateTime)
-                      }}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Specifications Table -->
-                <div class="detail-card specs-card">
-                  <div class="detail-card-title">
-                    <el-icon class="specs-title-icon"><List /></el-icon>
-                    商品规格配置 ({{
-                      detailData.specs ? detailData.specs.length : 0
-                    }})
-                  </div>
-                  <el-table
-                    :data="detailData.specs"
-                    class="detail-specs-table"
-                    style="width: 100%"
-                    border
-                    size="default"
-                  >
-                    <el-table-column
-                      label="规格图片"
-                      width="100"
-                      align="center"
-                    >
-                      <template #default="scope">
-                        <el-image
-                          :src="getImageUrl(scope.row.imageUrl)"
-                          :preview-src-list="[getImageUrl(scope.row.imageUrl)]"
-                          preview-teleported
-                          fit="cover"
-                          class="spec-thumb-img"
-                          v-if="scope.row.imageUrl"
-                        />
-                        <span v-else class="no-img-text">无图</span>
-                      </template>
-                    </el-table-column>
-                    <el-table-column
-                      prop="specName"
-                      label="规格属性名称"
-                      min-width="200"
-                    />
-                    <el-table-column
-                      prop="price"
-                      label="单价 (元)"
-                      min-width="140"
-                    >
-                      <template #default="scope">
-                        <span class="price-text"
-                          >¥
-                          {{ (Number(scope.row.price) || 0).toFixed(2) }}</span
-                        >
-                      </template>
-                    </el-table-column>
-                    <el-table-column
-                      prop="stock"
-                      label="库存数量"
-                      min-width="130"
-                      align="center"
-                    />
-                    <el-table-column
-                      prop="sort"
-                      label="排序值"
-                      min-width="110"
-                      align="center"
-                    />
-                  </el-table>
-                </div>
-
-                <div class="detail-card description-card">
-                  <div class="detail-card-title">商品副文本</div>
-                  <div
-                    v-if="detailData.description"
-                    class="detail-description"
-                    v-html="detailData.description"
-                  ></div>
-                  <el-empty
-                    v-else
-                    description="暂无商品副文本"
-                    :image-size="72"
+              <!-- Carousel pictures display -->
+              <div
+                class="detail-card carousel-card"
+                v-if="detailData.carouselUrls && detailData.carouselUrls.length"
+              >
+                <div class="detail-card-title">轮播展示图</div>
+                <div class="detail-carousels">
+                  <el-image
+                    v-for="(url, idx) in detailData.carouselUrls"
+                    :key="idx"
+                    :src="getImageUrl(url)"
+                    fit="cover"
+                    class="carousel-thumb"
+                    :preview-src-list="detailData.carouselUrls.map(getImageUrl)"
+                    :initial-index="idx"
+                    preview-teleported
                   />
                 </div>
               </div>
             </div>
+
+            <!-- Right side: Basic Information -->
+            <div class="detail-right-section">
+              <div class="detail-card info-card">
+                <div class="detail-card-title">基本信息</div>
+
+                <div class="detail-name-wrapper">
+                  <div class="detail-name-label">商品名称</div>
+                  <h3 class="detail-product-name">
+                    {{ detailData.productName }}
+                  </h3>
+                </div>
+
+                <div class="info-grid">
+                  <div class="info-item">
+                    <span class="info-label">商品 ID</span>
+                    <span class="info-value">{{ detailData.id }}</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">商品分类</span>
+                    <span class="info-value">
+                      <el-tag type="info" size="small" effect="plain">{{
+                        detailData.categoryName || "未分类"
+                      }}</el-tag>
+                    </span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">总库存</span>
+                    <span class="info-value"
+                      >{{ detailData.totalStock }} 件</span
+                    >
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">创建时间</span>
+                    <span class="info-value">{{
+                      formatDate(detailData.createTime)
+                    }}</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">更新时间</span>
+                    <span class="info-value">{{
+                      formatDate(detailData.updateTime)
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Specifications Table -->
+              <div class="detail-card specs-card">
+                <div class="detail-card-title">
+                  <el-icon class="specs-title-icon"><List /></el-icon>
+                  商品规格配置 ({{
+                    detailData.specs ? detailData.specs.length : 0
+                  }})
+                </div>
+                <el-table
+                  :data="detailData.specs"
+                  class="detail-specs-table"
+                  style="width: 100%"
+                  border
+                  size="default"
+                >
+                  <el-table-column label="规格图片" width="100" align="center">
+                    <template #default="scope">
+                      <el-image
+                        :src="getImageUrl(scope.row.imageUrl)"
+                        :preview-src-list="[getImageUrl(scope.row.imageUrl)]"
+                        preview-teleported
+                        fit="cover"
+                        class="spec-thumb-img"
+                        v-if="scope.row.imageUrl"
+                      />
+                      <span v-else class="no-img-text">无图</span>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    prop="specName"
+                    label="规格属性名称"
+                    min-width="200"
+                  />
+                  <el-table-column
+                    prop="price"
+                    label="单价 (元)"
+                    min-width="140"
+                  >
+                    <template #default="scope">
+                      <span class="price-text"
+                        >¥ {{ (Number(scope.row.price) || 0).toFixed(2) }}</span
+                      >
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    prop="stock"
+                    label="库存数量"
+                    min-width="130"
+                    align="center"
+                  />
+                  <el-table-column
+                    prop="sort"
+                    label="排序值"
+                    min-width="110"
+                    align="center"
+                  />
+                </el-table>
+              </div>
+
+              <div class="detail-card description-card">
+                <div class="detail-card-title">
+                  <el-icon class="specs-title-icon"><List /></el-icon>商品富文本
+                </div>
+                <div
+                  v-if="detailData.description"
+                  class="detail-description"
+                  v-html="detailData.description"
+                ></div>
+                <el-empty
+                  v-else
+                  description="暂无商品副文本"
+                  :image-size="72"
+                />
+              </div>
+            </div>
           </div>
+        </div>
       </template>
       <template #footer>
         <div class="dialog-footer">
@@ -1747,7 +1744,6 @@ onMounted(() => {
   margin-bottom: 12px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
 }
 
 .detail-cover-wrapper {
