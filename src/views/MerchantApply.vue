@@ -250,8 +250,14 @@
             <el-descriptions-item label="流程实例 ID">
               {{ detailData.processInstanceId || detailData.instanceId || (detailData.status !== 0 ? '12' : '-') }}
             </el-descriptions-item>
-            <el-descriptions-item label="审批驳回原因" :span="2" v-if="detailData && (detailData.status === 3 || detailData.approvalRemark)">
-              <span class="reject-text-highlight">{{ detailData.approvalRemark || '-' }}</span>
+            <el-descriptions-item 
+              :label="detailData.status === 2 ? '审批意见' : '审批驳回原因'" 
+              :span="2" 
+              v-if="detailData && (detailData.status === 3 || detailData.status === 2) && detailData.approvalRemark"
+            >
+              <span :class="detailData.status === 2 ? 'pass-text-highlight' : 'reject-text-highlight'">
+                {{ detailData.approvalRemark || '-' }}
+              </span>
             </el-descriptions-item>
           </el-descriptions>
         </div>
@@ -1131,6 +1137,11 @@ const goBackToLogin = () => {
 
 .reject-text-highlight {
   color: #dc2626;
+  font-weight: 600;
+}
+
+.pass-text-highlight {
+  color: #059669;
   font-weight: 600;
 }
 
