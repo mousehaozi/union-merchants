@@ -82,7 +82,7 @@
       <el-dropdown trigger="click" @command="handleHeaderCommand">
         <div class="user-info">
           <div class="char-avatar">
-            <img v-if="merchantInfo && merchantInfo.businessLicenseUrl" :src="merchantInfo.businessLicenseUrl" alt="avatar" class="avatar-img" />
+            <img v-if="merchantInfo && merchantInfo.businessLicenseUrl" :src="getImageUrl(merchantInfo.businessLicenseUrl)" alt="avatar" class="avatar-img" />
             <span v-else>{{ avatarChar }}</span>
           </div>
           <span class="nickname">{{ nickname }}</span>
@@ -107,6 +107,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { removeToken } from '@/utils/token'
 import { resetBreadcrumbs } from '@/utils/breadcrumbState'
 import { getCurrentMerchant } from '@/api/authApi'
+import { getImageUrl } from '@/utils/getimage.js'
 import { isCollapse, toggleCollapse } from '@/utils/sidebarState'
 import {
   merchantInfo,
@@ -140,6 +141,18 @@ const routeHierarchy = computed(() => {
       { name: base, isBold: true },
       { name: '商品管理', isBold: true },
       { name: '上架申请', isBold: false }
+    ]
+  } else if (route.path === '/merchant-orders') {
+    return [
+      { name: base, isBold: true },
+      { name: '订单管理', isBold: true },
+      { name: '全部订单', isBold: false }
+    ]
+  } else if (route.path === '/wait-ship-orders') {
+    return [
+      { name: base, isBold: true },
+      { name: '订单管理', isBold: true },
+      { name: '待发货订单', isBold: false }
     ]
   } else if (route.path === '/system-settings') {
     return [

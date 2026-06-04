@@ -23,12 +23,14 @@
           </el-tag>
         </div>
 
-        <!-- router-view with KeepAlive -->
-        <router-view v-slot="{ Component }">
-          <keep-alive :include="cachedNames">
-            <component :is="Component" />
-          </keep-alive>
-        </router-view>
+        <div class="page-view">
+          <!-- router-view with KeepAlive -->
+          <router-view v-slot="{ Component }">
+            <keep-alive :include="cachedNames">
+              <component :is="Component" />
+            </keep-alive>
+          </router-view>
+        </div>
       </el-main>
     </el-container>
   </el-container>
@@ -50,6 +52,8 @@ const cachedNames = computed(() => {
     if (item.path === '/') return 'Home'
     if (item.path === '/product') return 'Product'
     if (item.path === '/product-apply') return 'ProductApply'
+    if (item.path === '/merchant-orders') return 'MerchantOrders'
+    if (item.path === '/wait-ship-orders') return 'WaitShipOrders'
     if (item.path === '/system-settings') return 'SystemSettings'
     return ''
   }).filter(Boolean)
@@ -91,6 +95,7 @@ const handleBreadcrumbClose = (path) => {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .breadcrumb-bar {
@@ -102,6 +107,13 @@ const handleBreadcrumbClose = (path) => {
   flex-shrink: 0;
   gap: 8px;
   border-bottom: 1px solid #f1f5f9;
+}
+
+.page-view {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .breadcrumb-tag {

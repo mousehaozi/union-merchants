@@ -1,7 +1,6 @@
-/**
- * 获取后端接口基础地址
- * @returns {string} baseUrl
- */
-export function baseUrl() {
-	return 'http://192.168.0.121:9106/api';
+export const REQUEST_BASE_URL = "/api";
+
+// 通过环境变量来获取请求的 URL，不要改这里。
+export function getBackendBaseUrl() {
+  return import.meta.env.VITE_BACKEND_BASE_URL || REQUEST_BASE_URL;
 }

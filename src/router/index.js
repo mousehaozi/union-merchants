@@ -34,6 +34,18 @@ const routes = [
         meta: { title: '上架申请' }
       },
       {
+        path: 'wait-ship-orders',
+        name: 'WaitShipOrders',
+        component: () => import('@/views/order/WaitShipOrders.vue'),
+        meta: { title: '待发货订单' }
+      },
+      {
+        path: 'merchant-orders',
+        name: 'MerchantOrders',
+        component: () => import('@/views/order/MerchantOrders.vue'),
+        meta: { title: '全部订单' }
+      },
+      {
         path: 'system-settings',
         name: 'SystemSettings',
         component: () => import('@/views/SystemSettings.vue'),

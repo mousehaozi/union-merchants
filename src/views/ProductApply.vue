@@ -63,7 +63,7 @@
                     v-for="(item, idx) in scope.row.items.slice(0, 3)"
                     :key="idx"
                     class="product-avatar-img"
-                    :src="resolveUrl(item.coverUrl)"
+                    :src="getImageUrl(item.coverUrl)"
                     fit="cover"
                   />
                   <div v-if="scope.row.items.length > 3" class="product-avatar-more">
@@ -175,7 +175,7 @@
               <template #default="scope">
                 <el-image
                   class="select-product-img"
-                  :src="resolveUrl(scope.row.coverUrl)"
+                  :src="getImageUrl(scope.row.coverUrl)"
                   fit="cover"
                 />
               </template>
@@ -257,9 +257,9 @@
                   <template #default="scope">
                     <el-image
                       class="detail-product-img"
-                      :src="resolveUrl(scope.row.coverUrl)"
+                      :src="getImageUrl(scope.row.coverUrl)"
                       fit="cover"
-                      :preview-src-list="[resolveUrl(scope.row.coverUrl)]"
+                      :preview-src-list="[getImageUrl(scope.row.coverUrl)]"
                       preview-teleported
                     />
                   </template>
@@ -308,25 +308,13 @@ import {
   createProductApply,
   submitProductApply
 } from '@/api/productApplyApi';
-import { baseUrl } from '@/utils/baseUrl.js';
+import { getImageUrl } from '@/utils/getimage.js';
 import CommonLayout from '@/components/commonLayout.vue';
 import { formatDate } from '@/utils/date.js';
 
 defineOptions({
   name: 'ProductApply'
 });
-
-// Helper: Resolve relative image URL to absolute
-const resolveUrl = (url) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
-    return url;
-  }
-  const base = baseUrl().replace(/\/$/, '');
-  return url.startsWith('/') ? `${base}${url}` : `${base}/${url}`;
-};
-
-
 
 // Filter forms
 const searchForm = reactive({
@@ -551,7 +539,8 @@ onMounted(() => {
 
 <style scoped>
 .page-container {
-  height: calc(100vh - 110px);
+  height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
