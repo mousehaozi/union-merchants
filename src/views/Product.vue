@@ -527,9 +527,7 @@
       :destroy-on-close="true"
       class="product-detail-dialog"
     >
-      <el-tabs v-model="activeTab" class="detail-tabs" v-if="detailData">
-        <!-- Tab 1: 商品信息 -->
-        <el-tab-pane label="商品信息" name="info">
+      <template v-if="detailData">
           <div class="product-detail">
             <div class="detail-split-container">
               <!-- Left side: Media Section -->
@@ -719,115 +717,7 @@
               </div>
             </div>
           </div>
-        </el-tab-pane>
-
-        <!-- Tab 2: 变更记录 -->
-        <el-tab-pane label="变更记录" name="logs">
-          <div class="change-logs-container" v-loading="changeLogsLoading">
-            <el-table
-              :data="changeLogs"
-              border
-              style="width: 100%"
-              max-height="550"
-            >
-              <el-table-column label="变更时间" width="180" align="center">
-                <template #default="scope">
-                  <span>{{ formatDate(scope.row.createTime) }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column label="操作人" width="180" align="center">
-                <template #default="scope">
-                  <span style="font-weight: 600">{{
-                    getOperatorNameText(scope.row)
-                  }}</span>
-                  <el-tag
-                    size="small"
-                    type="info"
-                    style="margin-left: 6px"
-                    v-if="scope.row.operatorType !== undefined"
-                  >
-                    {{
-                      scope.row.operatorType === 1
-                        ? "商家"
-                        : scope.row.operatorType === 2
-                          ? "平台"
-                          : "系统"
-                    }}
-                  </el-tag>
-                </template>
-              </el-table-column>
-              <el-table-column label="关联业务" width="120" align="center">
-                <template #default="scope">
-                  <el-tag type="info" effect="plain">
-                    {{ getRelatedBizTypeText(scope.row.relatedBizType) }}
-                  </el-tag>
-                </template>
-              </el-table-column>
-              <el-table-column label="变更类型" width="100" align="center">
-                <template #default="scope">
-                  <el-tag
-                    :type="getChangeTypeTag(scope.row.changeType)"
-                    effect="light"
-                  >
-                    {{ getChangeTypeText(scope.row.changeType) }}
-                  </el-tag>
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="fieldName"
-                label="变更字段"
-                width="130"
-                align="center"
-                show-overflow-tooltip
-              >
-                <template #default="scope">
-                  <span style="color: #475569; font-weight: 600">{{
-                    scope.row.fieldName || "-"
-                  }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="变更前"
-                min-width="150"
-                align="left"
-                show-overflow-tooltip
-              >
-                <template #default="scope">
-                  <span class="value-before">{{
-                    formatChangeValue(
-                      scope.row.fieldName,
-                      scope.row.beforeValue,
-                    )
-                  }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="变更后"
-                min-width="150"
-                align="left"
-                show-overflow-tooltip
-              >
-                <template #default="scope">
-                  <span class="value-after">{{
-                    formatChangeValue(scope.row.fieldName, scope.row.afterValue)
-                  }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="reason"
-                label="变更原因"
-                min-width="150"
-                align="left"
-                show-overflow-tooltip
-              >
-                <template #default="scope">
-                  <span>{{ scope.row.reason || "-" }}</span>
-                </template>
-              </el-table-column>
-            </el-table>
-          </div>
-        </el-tab-pane>
-      </el-tabs>
+      </template>
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="detailDrawerVisible = false">关闭</el-button>
@@ -867,7 +757,6 @@ import {
   updateProduct,
   getProductCategoryTree,
   delistProduct,
-  getProductChangeLogs,
 } from "@/api/productApi";
 import { merchantApis } from "@/api/merchantApplyApi";
 import { getImageUrl } from "@/utils/getimage.js";
@@ -1078,98 +967,19 @@ const handleCurrentChange = (val) => {
 // Product detail view drawer state
 const detailDrawerVisible = ref(false);
 const detailData = ref(null);
-const activeTab = ref("info");
-const changeLogs = ref([]);
-const changeLogsLoading = ref(false);
-
-const loadChangeLogs = async (productId) => {
-  changeLogsLoading.value = true;
-  try {
-    const res = await getProductChangeLogs(productId);
-    if (res && (res.code === 200 || res.code === 0)) {
-      changeLogs.value = res.data || [];
-    } else {
-      ElMessage.error(res?.message || "获取变更记录失败");
-    }
-  } catch (err) {
-    console.error("获取变更记录失败:", err);
-  } finally {
-    changeLogsLoading.value = false;
-  }
-};
 
 const handleView = async (row) => {
-  activeTab.value = "info";
-  changeLogs.value = [];
   try {
     const res = await getProductDetail(row.id);
     if (res && (res.code === 200 || res.code === 0) && res.data) {
       detailData.value = res.data;
       detailDrawerVisible.value = true;
-      loadChangeLogs(row.id);
     } else {
       throw new Error(res?.message || "详情获取失败");
     }
   } catch (err) {
     ElMessage.error(err.message || "获取商品详情失败");
   }
-};
-
-const getChangeTypeText = (type) => {
-  if (!type) return "修改";
-  const val = type.toUpperCase();
-  if (val === "CREATE" || val === "ADD") return "新增";
-  if (val === "UPDATE" || val === "MODIFY") return "修改";
-  if (val === "DELIST" || val === "OFF_SHELF") return "下架";
-  if (val === "LIST" || val === "ON_SHELF") return "上架";
-  if (val === "APPROVE_LIST") return "审批上架";
-  if (val === "AUTO_UNLIST") return "自动下架";
-  if (val === "FORCE_DELIST") return "强制下架";
-  return type;
-};
-
-const getChangeTypeTag = (type) => {
-  if (!type) return "primary";
-  const val = type.toUpperCase();
-  if (val === "CREATE" || val === "ADD") return "success";
-  if (val === "UPDATE" || val === "MODIFY") return "primary";
-  if (val === "DELIST" || val === "OFF_SHELF") return "danger";
-  if (val === "LIST" || val === "ON_SHELF") return "success";
-  if (val === "APPROVE_LIST") return "success";
-  if (val === "AUTO_UNLIST") return "warning";
-  if (val === "FORCE_DELIST") return "danger";
-  return "info";
-};
-
-const getRelatedBizTypeText = (type) => {
-  if (!type) return "-";
-  const val = type.toUpperCase();
-  if (val === "PRODUCT") return "商品";
-  if (val === "PRODUCT_LISTING") return "上架申请";
-  return type;
-};
-
-const getOperatorNameText = (row) => {
-  if (row.operatorName) return row.operatorName;
-  if (row.operatorType === 3) return "系统自动";
-  if (row.operatorId !== null && row.operatorId !== undefined)
-    return `ID:${row.operatorId}`;
-  return "系统";
-};
-
-const formatChangeValue = (fieldName, value) => {
-  if (value === null || value === undefined || value === "") return "空";
-
-  const field = (fieldName || "").toLowerCase();
-  // Check if field is status related
-  if (field === "status" || field.includes("状态")) {
-    const valStr = String(value).trim();
-    if (valStr === "0") return "未上架";
-    if (valStr === "1") return "已上架";
-    if (valStr === "2") return "已下架";
-  }
-
-  return value;
 };
 
 // Create/Edit form dialog state
@@ -2145,39 +1955,6 @@ onMounted(() => {
   font-size: 13px;
   color: #64748b;
   font-weight: 600;
-}
-
-.detail-tabs :deep(.el-tabs__nav-wrap) {
-  padding: 0 24px;
-  background-color: #ffffff;
-}
-
-.detail-tabs :deep(.el-tabs__header) {
-  margin: 0;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.change-logs-container {
-  padding: 24px;
-  background-color: #ffffff;
-}
-
-.value-before {
-  color: #ef4444;
-  text-decoration: line-through;
-  background-color: #fef2f2;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: monospace;
-}
-
-.value-after {
-  color: #10b981;
-  background-color: #ecfdf5;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: monospace;
-  font-weight: 500;
 }
 </style>
 

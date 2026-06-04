@@ -47,11 +47,3 @@ export const getProductCategoryTree = () => {
 export const delistProduct = (productId) => {
   return request.put(`/merchant/products/${productId}/delist`);
 };
-
-/**
- * 获取商品变动记录
- * @param {number|string} productId - 商品ID
- */
-export const getProductChangeLogs = (productId) => {
-  return request.get(`/merchant/products/${productId}/change-logs`);
-};
