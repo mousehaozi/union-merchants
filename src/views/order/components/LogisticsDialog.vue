@@ -56,35 +56,28 @@
             <el-descriptions-item label="物流公司">
               {{ currentLogistics.comName || currentLogistics.comCode || "-" }}
             </el-descriptions-item>
-            <el-descriptions-item label="查询状态">
-              {{ currentLogistics.status || "-" }}
-            </el-descriptions-item>
-            <el-descriptions-item label="查询时间">
-              {{ formatLogisticsTime(currentLogistics.queryTime) }}
-            </el-descriptions-item>
-            <el-descriptions-item v-if="currentLogistics.message" label="接口消息" :span="2">
-              {{ currentLogistics.message }}
-            </el-descriptions-item>
           </el-descriptions>
         </section>
 
         <section v-if="currentLogistics" class="logistics-card">
           <div class="logistics-card__title">物流轨迹</div>
-          <el-timeline v-if="currentTraces.length" class="trace-timeline">
-            <el-timeline-item
-              v-for="(trace, index) in currentTraces"
-              :key="`${trace.time || trace.ftime || index}-${index}`"
-              :timestamp="formatTraceTime(trace)"
-              placement="top"
-              :type="index === 0 ? 'success' : 'primary'"
-            >
-              <div class="trace-content">{{ trace.context || "-" }}</div>
-              <div v-if="trace.areaName || trace.status" class="trace-meta">
-                <span v-if="trace.areaName">{{ trace.areaName }}</span>
-                <span v-if="trace.status">{{ trace.status }}</span>
-              </div>
-            </el-timeline-item>
-          </el-timeline>
+          <div v-if="currentTraces.length" class="trace-container">
+            <el-timeline class="trace-timeline">
+              <el-timeline-item
+                v-for="(trace, index) in currentTraces"
+                :key="`${trace.time || trace.ftime || index}-${index}`"
+                :timestamp="formatTraceTime(trace)"
+                placement="top"
+                :type="index === 0 ? 'success' : 'primary'"
+              >
+                <div class="trace-content">{{ trace.context || "-" }}</div>
+                <div v-if="trace.areaName || trace.status" class="trace-meta">
+                  <span v-if="trace.areaName">{{ trace.areaName }}</span>
+                  <span v-if="trace.status">{{ trace.status }}</span>
+                </div>
+              </el-timeline-item>
+            </el-timeline>
+          </div>
           <el-empty v-else description="暂无物流轨迹" :image-size="72" />
         </section>
       </template>
@@ -113,7 +106,6 @@ import { computed, ref, watch } from "vue";
 import { ElMessage } from "element-plus";
 import { Close, Refresh, Van } from "@element-plus/icons-vue";
 import { getMerchantOrderLogistics } from "@/api/orderApi.js";
-import { formatDate } from "@/utils/date.js";
 
 const props = defineProps({
   modelValue: {
@@ -148,7 +140,12 @@ const currentTraces = computed(() => {
   const traces = Array.isArray(currentLogistics.value?.traces)
     ? currentLogistics.value.traces
     : [];
-  return [...traces].reverse();
+  return [...traces].sort((left, right) => {
+    const leftTime = getTraceTimestamp(left);
+    const rightTime = getTraceTimestamp(right);
+    if (!leftTime || !rightTime) return 0;
+    return rightTime - leftTime;
+  });
 });
 
 const normalizeList = (value) => {
@@ -226,12 +223,14 @@ const getStateTagType = (state) => {
   return map[state] || "info";
 };
 
-const formatLogisticsTime = (value) => {
-  return formatDate(value);
-};
-
 const formatTraceTime = (trace) => {
   return trace?.ftime || trace?.time || "-";
+};
+
+const getTraceTimestamp = (trace) => {
+  const value = trace?.time || trace?.ftime;
+  const timestamp = new Date(value).getTime();
+  return Number.isNaN(timestamp) ? 0 : timestamp;
 };
 
 watch(
@@ -319,8 +318,16 @@ watch(
   font-weight: 700;
 }
 
+.trace-container {
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 12px 12px 4px 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
 .trace-timeline {
-  padding: 6px 0 0;
+  padding: 0 0 0 12px;
 }
 
 .trace-content {
