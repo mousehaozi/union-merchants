@@ -9,6 +9,14 @@ export const getProductPage = (params) => {
 };
 
 /**
+ * 未上架商品分页列表
+ * @param {Object} params - { pageNum, pageSize }
+ */
+export const getUnlistedProductPage = (params) => {
+  return request.get("/merchant/products/unlisted/page", { params });
+};
+
+/**
  * 商品详情
  * @param {number|string} productId - 商品ID
  */
