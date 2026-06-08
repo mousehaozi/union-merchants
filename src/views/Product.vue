@@ -59,12 +59,23 @@
 
       <!-- Actions -->
       <template #actions>
-        <el-button type="primary" plain :icon="Plus" @click="openCreateDrawer"
-          >新增商品</el-button
-        >
-        <el-button plain :icon="Refresh" @click="loadProducts"
-          >刷新列表</el-button
-        >
+        <div class="product-actions">
+          <div class="product-actions__buttons">
+            <el-button
+              type="primary"
+              plain
+              :icon="Plus"
+              @click="openCreateDrawer"
+              >新增商品</el-button
+            >
+            <el-button plain :icon="Refresh" @click="loadProducts"
+              >刷新列表</el-button
+            >
+          </div>
+          <span class="product-actions__hint">
+            补库存或减少库存不会下架，修改信息和价格会导致商品下架。
+          </span>
+        </div>
       </template>
 
       <!-- Table -->
@@ -167,12 +178,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column
-            label="操作"
-            width="220"
-            align="center"
-            fixed="right"
-          >
+          <el-table-column label="操作" align="center" fixed="right">
             <template #default="scope">
               <el-button
                 link
@@ -484,6 +490,25 @@
                 </el-table-column>
               </el-table>
             </div>
+
+            <el-form-item label="商品副文本" prop="description">
+              <div class="rich-editor-wrapper">
+                <Toolbar
+                  :editor="editorRef"
+                  :default-config="toolbarConfig"
+                  mode="default"
+                  class="rich-editor-toolbar"
+                />
+                <Editor
+                  v-model="productForm.description"
+                  :default-config="editorConfig"
+                  mode="default"
+                  class="rich-editor"
+                  @on-created="handleEditorCreated"
+                  @on-destroyed="handleEditorDestroyed"
+                />
+              </div>
+            </el-form-item>
           </div>
         </div>
       </el-form>
@@ -506,293 +531,190 @@
       :destroy-on-close="true"
       class="product-detail-dialog"
     >
-      <el-tabs v-model="activeTab" class="detail-tabs" v-if="detailData">
-        <!-- Tab 1: 商品信息 -->
-        <el-tab-pane label="商品信息" name="info">
-          <div class="product-detail">
-            <div class="detail-split-container">
-              <!-- Left side: Media Section -->
-              <div class="detail-left-section">
-                <!-- Cover image display -->
-                <div class="detail-card cover-card">
-                  <div class="detail-card-title">商品封面</div>
-                  <div class="detail-cover-wrapper">
-                    <el-image
-                      :src="getImageUrl(detailData.coverUrl)"
-                      :preview-src-list="[getImageUrl(detailData.coverUrl)]"
-                      preview-teleported
-                      fit="cover"
-                      class="detail-cover"
-                    />
-                    <div class="detail-status-tag">
-                      <el-tag
-                        :type="
-                          detailData.status === 1
-                            ? 'success'
-                            : detailData.status === 2
-                              ? 'danger'
-                              : 'info'
-                        "
-                        effect="dark"
-                      >
-                        {{
-                          detailData.status === 1
-                            ? "已上架"
-                            : detailData.status === 2
-                              ? "已下架"
-                              : "未上架"
-                        }}
-                      </el-tag>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Carousel pictures display -->
-                <div
-                  class="detail-card carousel-card"
-                  v-if="
-                    detailData.carouselUrls && detailData.carouselUrls.length
-                  "
-                >
-                  <div class="detail-card-title">轮播展示图</div>
-                  <div class="detail-carousels">
-                    <el-image
-                      v-for="(url, idx) in detailData.carouselUrls"
-                      :key="idx"
-                      :src="getImageUrl(url)"
-                      fit="cover"
-                      class="carousel-thumb"
-                      :preview-src-list="
-                        detailData.carouselUrls.map(getImageUrl)
+      <template v-if="detailData">
+        <div class="product-detail">
+          <div class="detail-split-container">
+            <!-- Left side: Media Section -->
+            <div class="detail-left-section">
+              <!-- Cover image display -->
+              <div class="detail-card cover-card">
+                <div class="detail-card-title">商品封面</div>
+                <div class="detail-cover-wrapper">
+                  <el-image
+                    :src="getImageUrl(detailData.coverUrl)"
+                    :preview-src-list="[getImageUrl(detailData.coverUrl)]"
+                    preview-teleported
+                    fit="cover"
+                    class="detail-cover"
+                  />
+                  <div class="detail-status-tag">
+                    <el-tag
+                      :type="
+                        detailData.status === 1
+                          ? 'success'
+                          : detailData.status === 2
+                            ? 'danger'
+                            : 'info'
                       "
-                      :initial-index="idx"
-                      preview-teleported
-                    />
+                      effect="dark"
+                    >
+                      {{
+                        detailData.status === 1
+                          ? "已上架"
+                          : detailData.status === 2
+                            ? "已下架"
+                            : "未上架"
+                      }}
+                    </el-tag>
                   </div>
                 </div>
               </div>
 
-              <!-- Right side: Basic Information -->
-              <div class="detail-right-section">
-                <div class="detail-card info-card">
-                  <div class="detail-card-title">基本信息</div>
-
-                  <div class="detail-name-wrapper">
-                    <div class="detail-name-label">商品名称</div>
-                    <h3 class="detail-product-name">
-                      {{ detailData.productName }}
-                    </h3>
-                  </div>
-
-                  <div class="info-grid">
-                    <div class="info-item">
-                      <span class="info-label">商品 ID</span>
-                      <span class="info-value">{{ detailData.id }}</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">商品分类</span>
-                      <span class="info-value">
-                        <el-tag type="info" size="small" effect="plain">{{
-                          detailData.categoryName || "未分类"
-                        }}</el-tag>
-                      </span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">总库存</span>
-                      <span class="info-value"
-                        >{{ detailData.totalStock }} 件</span
-                      >
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">创建时间</span>
-                      <span class="info-value">{{
-                        formatDate(detailData.createTime)
-                      }}</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">更新时间</span>
-                      <span class="info-value">{{
-                        formatDate(detailData.updateTime)
-                      }}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Specifications Table -->
-                <div class="detail-card specs-card">
-                  <div class="detail-card-title">
-                    <el-icon class="specs-title-icon"><List /></el-icon>
-                    商品规格配置 ({{
-                      detailData.specs ? detailData.specs.length : 0
-                    }})
-                  </div>
-                  <el-table
-                    :data="detailData.specs"
-                    class="detail-specs-table"
-                    style="width: 100%"
-                    border
-                    size="default"
-                  >
-                    <el-table-column
-                      label="规格图片"
-                      width="100"
-                      align="center"
-                    >
-                      <template #default="scope">
-                        <el-image
-                          :src="getImageUrl(scope.row.imageUrl)"
-                          :preview-src-list="[getImageUrl(scope.row.imageUrl)]"
-                          preview-teleported
-                          fit="cover"
-                          class="spec-thumb-img"
-                          v-if="scope.row.imageUrl"
-                        />
-                        <span v-else class="no-img-text">无图</span>
-                      </template>
-                    </el-table-column>
-                    <el-table-column
-                      prop="specName"
-                      label="规格属性名称"
-                      min-width="200"
-                    />
-                    <el-table-column
-                      prop="price"
-                      label="单价 (元)"
-                      min-width="140"
-                    >
-                      <template #default="scope">
-                        <span class="price-text"
-                          >¥
-                          {{ (Number(scope.row.price) || 0).toFixed(2) }}</span
-                        >
-                      </template>
-                    </el-table-column>
-                    <el-table-column
-                      prop="stock"
-                      label="库存数量"
-                      min-width="130"
-                      align="center"
-                    />
-                    <el-table-column
-                      prop="sort"
-                      label="排序值"
-                      min-width="110"
-                      align="center"
-                    />
-                  </el-table>
+              <!-- Carousel pictures display -->
+              <div
+                class="detail-card carousel-card"
+                v-if="detailData.carouselUrls && detailData.carouselUrls.length"
+              >
+                <div class="detail-card-title">轮播展示图</div>
+                <div class="detail-carousels">
+                  <el-image
+                    v-for="(url, idx) in detailData.carouselUrls"
+                    :key="idx"
+                    :src="getImageUrl(url)"
+                    fit="cover"
+                    class="carousel-thumb"
+                    :preview-src-list="detailData.carouselUrls.map(getImageUrl)"
+                    :initial-index="idx"
+                    preview-teleported
+                  />
                 </div>
               </div>
             </div>
-          </div>
-        </el-tab-pane>
 
-        <!-- Tab 2: 变更记录 -->
-        <el-tab-pane label="变更记录" name="logs">
-          <div class="change-logs-container" v-loading="changeLogsLoading">
-            <el-table
-              :data="changeLogs"
-              border
-              style="width: 100%"
-              max-height="550"
-            >
-              <el-table-column label="变更时间" width="180" align="center">
-                <template #default="scope">
-                  <span>{{ formatDate(scope.row.createTime) }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column label="操作人" width="180" align="center">
-                <template #default="scope">
-                  <span style="font-weight: 600">{{
-                    getOperatorNameText(scope.row)
-                  }}</span>
-                  <el-tag
-                    size="small"
-                    type="info"
-                    style="margin-left: 6px"
-                    v-if="scope.row.operatorType !== undefined"
+            <!-- Right side: Basic Information -->
+            <div class="detail-right-section">
+              <div class="detail-card info-card">
+                <div class="detail-card-title">基本信息</div>
+
+                <div class="detail-name-wrapper">
+                  <div class="detail-name-label">商品名称</div>
+                  <h3 class="detail-product-name">
+                    {{ detailData.productName }}
+                  </h3>
+                </div>
+
+                <div class="info-grid">
+                  <div class="info-item">
+                    <span class="info-label">商品 ID</span>
+                    <span class="info-value">{{ detailData.id }}</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">商品分类</span>
+                    <span class="info-value">
+                      <el-tag type="info" size="small" effect="plain">{{
+                        detailData.categoryName || "未分类"
+                      }}</el-tag>
+                    </span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">总库存</span>
+                    <span class="info-value"
+                      >{{ detailData.totalStock }} 件</span
+                    >
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">创建时间</span>
+                    <span class="info-value">{{
+                      formatDate(detailData.createTime)
+                    }}</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">更新时间</span>
+                    <span class="info-value">{{
+                      formatDate(detailData.updateTime)
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Specifications Table -->
+              <div class="detail-card specs-card">
+                <div class="detail-card-title">
+                  <el-icon class="specs-title-icon"><List /></el-icon>
+                  商品规格配置 ({{
+                    detailData.specs ? detailData.specs.length : 0
+                  }})
+                </div>
+                <el-table
+                  :data="detailData.specs"
+                  class="detail-specs-table"
+                  style="width: 100%"
+                  border
+                  size="default"
+                >
+                  <el-table-column label="规格图片" width="100" align="center">
+                    <template #default="scope">
+                      <el-image
+                        :src="getImageUrl(scope.row.imageUrl)"
+                        :preview-src-list="[getImageUrl(scope.row.imageUrl)]"
+                        preview-teleported
+                        fit="cover"
+                        class="spec-thumb-img"
+                        v-if="scope.row.imageUrl"
+                      />
+                      <span v-else class="no-img-text">无图</span>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    prop="specName"
+                    label="规格属性名称"
+                    min-width="200"
+                  />
+                  <el-table-column
+                    prop="price"
+                    label="单价 (元)"
+                    min-width="140"
                   >
-                    {{
-                      scope.row.operatorType === 1
-                        ? "商家"
-                        : scope.row.operatorType === 2
-                          ? "平台"
-                          : "系统"
-                    }}
-                  </el-tag>
-                </template>
-              </el-table-column>
-              <el-table-column label="关联业务" width="120" align="center">
-                <template #default="scope">
-                  <el-tag type="info" effect="plain">
-                    {{ getRelatedBizTypeText(scope.row.relatedBizType) }}
-                  </el-tag>
-                </template>
-              </el-table-column>
-              <el-table-column label="变更类型" width="100" align="center">
-                <template #default="scope">
-                  <el-tag
-                    :type="getChangeTypeTag(scope.row.changeType)"
-                    effect="light"
-                  >
-                    {{ getChangeTypeText(scope.row.changeType) }}
-                  </el-tag>
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="fieldName"
-                label="变更字段"
-                width="130"
-                align="center"
-                show-overflow-tooltip
-              >
-                <template #default="scope">
-                  <span style="color: #475569; font-weight: 600">{{
-                    scope.row.fieldName || "-"
-                  }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="变更前"
-                min-width="150"
-                align="left"
-                show-overflow-tooltip
-              >
-                <template #default="scope">
-                  <span class="value-before">{{
-                    formatChangeValue(
-                      scope.row.fieldName,
-                      scope.row.beforeValue,
-                    )
-                  }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="变更后"
-                min-width="150"
-                align="left"
-                show-overflow-tooltip
-              >
-                <template #default="scope">
-                  <span class="value-after">{{
-                    formatChangeValue(scope.row.fieldName, scope.row.afterValue)
-                  }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="reason"
-                label="变更原因"
-                min-width="150"
-                align="left"
-                show-overflow-tooltip
-              >
-                <template #default="scope">
-                  <span>{{ scope.row.reason || "-" }}</span>
-                </template>
-              </el-table-column>
-            </el-table>
+                    <template #default="scope">
+                      <span class="price-text"
+                        >¥ {{ (Number(scope.row.price) || 0).toFixed(2) }}</span
+                      >
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    prop="stock"
+                    label="库存数量"
+                    min-width="130"
+                    align="center"
+                  />
+                  <el-table-column
+                    prop="sort"
+                    label="排序值"
+                    min-width="110"
+                    align="center"
+                  />
+                </el-table>
+              </div>
+
+              <div class="detail-card description-card">
+                <div class="detail-card-title">
+                  <el-icon class="specs-title-icon"><List /></el-icon>商品富文本
+                </div>
+                <div
+                  v-if="detailData.description"
+                  class="detail-description"
+                  v-html="detailData.description"
+                ></div>
+                <el-empty
+                  v-else
+                  description="暂无商品副文本"
+                  :image-size="72"
+                />
+              </div>
+            </div>
           </div>
-        </el-tab-pane>
-      </el-tabs>
+        </div>
+      </template>
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="detailDrawerVisible = false">关闭</el-button>
@@ -803,8 +725,10 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, onMounted } from "vue";
+import { ref, reactive, onBeforeUnmount, onMounted, shallowRef } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
+import "@wangeditor/editor/dist/css/style.css";
+import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import {
   Shop,
   Menu,
@@ -830,7 +754,6 @@ import {
   updateProduct,
   getProductCategoryTree,
   delistProduct,
-  getProductChangeLogs,
 } from "@/api/productApi";
 import { merchantApis } from "@/api/merchantApplyApi";
 import { getImageUrl } from "@/utils/getimage.js";
@@ -841,6 +764,24 @@ defineOptions({
 });
 const loading = ref(false);
 const submitLoading = ref(false);
+const editorRef = shallowRef(null);
+
+const toolbarConfig = {};
+const editorConfig = {
+  placeholder: "请输入商品副文本，可填写商品卖点、使用说明、售后说明等内容",
+};
+
+const handleEditorCreated = (editor) => {
+  editorRef.value = editor;
+};
+
+const handleEditorDestroyed = () => {
+  editorRef.value = null;
+};
+
+onBeforeUnmount(() => {
+  editorRef.value?.destroy();
+});
 
 // Categories tree list
 const categories = ref([]);
@@ -1023,98 +964,19 @@ const handleCurrentChange = (val) => {
 // Product detail view drawer state
 const detailDrawerVisible = ref(false);
 const detailData = ref(null);
-const activeTab = ref("info");
-const changeLogs = ref([]);
-const changeLogsLoading = ref(false);
-
-const loadChangeLogs = async (productId) => {
-  changeLogsLoading.value = true;
-  try {
-    const res = await getProductChangeLogs(productId);
-    if (res && (res.code === 200 || res.code === 0)) {
-      changeLogs.value = res.data || [];
-    } else {
-      ElMessage.error(res?.message || "获取变更记录失败");
-    }
-  } catch (err) {
-    console.error("获取变更记录失败:", err);
-  } finally {
-    changeLogsLoading.value = false;
-  }
-};
 
 const handleView = async (row) => {
-  activeTab.value = "info";
-  changeLogs.value = [];
   try {
     const res = await getProductDetail(row.id);
     if (res && (res.code === 200 || res.code === 0) && res.data) {
       detailData.value = res.data;
       detailDrawerVisible.value = true;
-      loadChangeLogs(row.id);
     } else {
       throw new Error(res?.message || "详情获取失败");
     }
   } catch (err) {
     ElMessage.error(err.message || "获取商品详情失败");
   }
-};
-
-const getChangeTypeText = (type) => {
-  if (!type) return "修改";
-  const val = type.toUpperCase();
-  if (val === "CREATE" || val === "ADD") return "新增";
-  if (val === "UPDATE" || val === "MODIFY") return "修改";
-  if (val === "DELIST" || val === "OFF_SHELF") return "下架";
-  if (val === "LIST" || val === "ON_SHELF") return "上架";
-  if (val === "APPROVE_LIST") return "审批上架";
-  if (val === "AUTO_UNLIST") return "自动下架";
-  if (val === "FORCE_DELIST") return "强制下架";
-  return type;
-};
-
-const getChangeTypeTag = (type) => {
-  if (!type) return "primary";
-  const val = type.toUpperCase();
-  if (val === "CREATE" || val === "ADD") return "success";
-  if (val === "UPDATE" || val === "MODIFY") return "primary";
-  if (val === "DELIST" || val === "OFF_SHELF") return "danger";
-  if (val === "LIST" || val === "ON_SHELF") return "success";
-  if (val === "APPROVE_LIST") return "success";
-  if (val === "AUTO_UNLIST") return "warning";
-  if (val === "FORCE_DELIST") return "danger";
-  return "info";
-};
-
-const getRelatedBizTypeText = (type) => {
-  if (!type) return "-";
-  const val = type.toUpperCase();
-  if (val === "PRODUCT") return "商品";
-  if (val === "PRODUCT_LISTING") return "上架申请";
-  return type;
-};
-
-const getOperatorNameText = (row) => {
-  if (row.operatorName) return row.operatorName;
-  if (row.operatorType === 3) return "系统自动";
-  if (row.operatorId !== null && row.operatorId !== undefined)
-    return `ID:${row.operatorId}`;
-  return "系统";
-};
-
-const formatChangeValue = (fieldName, value) => {
-  if (value === null || value === undefined || value === "") return "空";
-
-  const field = (fieldName || "").toLowerCase();
-  // Check if field is status related
-  if (field === "status" || field.includes("状态")) {
-    const valStr = String(value).trim();
-    if (valStr === "0") return "未上架";
-    if (valStr === "1") return "已上架";
-    if (valStr === "2") return "已下架";
-  }
-
-  return value;
 };
 
 // Create/Edit form dialog state
@@ -1127,6 +989,7 @@ const productForm = reactive({
   productName: "",
   coverUrl: "",
   carouselUrls: [""],
+  description: "",
   categoryId: "",
   categoryName: "",
   status: 0,
@@ -1151,6 +1014,7 @@ const openCreateDrawer = () => {
     productName: "",
     coverUrl: "",
     carouselUrls: [""],
+    description: "",
     categoryId: "",
     categoryName: "",
     status: 0,
@@ -1176,6 +1040,7 @@ const handleEdit = async (row) => {
           data.carouselUrls && data.carouselUrls.length
             ? [...data.carouselUrls]
             : [""],
+        description: data.description || "",
         categoryId: data.categoryId || "",
         categoryName: data.categoryName || "",
         status: data.status !== undefined ? data.status : 0,
@@ -1255,6 +1120,7 @@ const submitForm = async () => {
       productName: productForm.productName,
       coverUrl: productForm.coverUrl,
       carouselUrls: cleanCarousels,
+      description: productForm.description,
       categoryId: Number(productForm.categoryId) || 1,
       categoryName: productForm.categoryName,
       status: productForm.status,
@@ -1343,6 +1209,26 @@ onMounted(() => {
 
 .btn-create:hover {
   background: linear-gradient(135deg, #008655 0%, #006b43 100%);
+}
+
+.product-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.product-actions__buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.product-actions__hint {
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .product-table {
@@ -1604,6 +1490,23 @@ onMounted(() => {
   line-height: 1.5;
 }
 
+.rich-editor-wrapper {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.rich-editor-toolbar {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.rich-editor {
+  height: 260px;
+  overflow-y: auto;
+}
+
 /* Carousel Section styling */
 .carousel-upload-grid {
   display: grid;
@@ -1841,7 +1744,6 @@ onMounted(() => {
   margin-bottom: 12px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
 }
 
 .detail-cover-wrapper {
@@ -1965,6 +1867,35 @@ onMounted(() => {
   padding: 8px 0;
 }
 
+.description-card {
+  overflow: hidden;
+}
+
+.detail-description {
+  min-height: 120px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #334155;
+  line-height: 1.7;
+  background: #f8fafc;
+}
+
+.detail-description :deep(p) {
+  margin: 0 0 10px;
+}
+
+.detail-description :deep(p:last-child) {
+  margin-bottom: 0;
+}
+
+.detail-description :deep(img) {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
 .spec-thumb-img {
   width: 40px;
   height: 40px;
@@ -2020,39 +1951,6 @@ onMounted(() => {
   font-size: 13px;
   color: #64748b;
   font-weight: 600;
-}
-
-.detail-tabs :deep(.el-tabs__nav-wrap) {
-  padding: 0 24px;
-  background-color: #ffffff;
-}
-
-.detail-tabs :deep(.el-tabs__header) {
-  margin: 0;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.change-logs-container {
-  padding: 24px;
-  background-color: #ffffff;
-}
-
-.value-before {
-  color: #ef4444;
-  text-decoration: line-through;
-  background-color: #fef2f2;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: monospace;
-}
-
-.value-after {
-  color: #10b981;
-  background-color: #ecfdf5;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: monospace;
-  font-weight: 500;
 }
 </style>
 

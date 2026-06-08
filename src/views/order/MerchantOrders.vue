@@ -227,6 +227,16 @@
               >
                 发货
               </el-button>
+              <el-button
+                v-if="canViewLogistics(scope.row)"
+                link
+                type="warning"
+                size="default"
+                :icon="Van"
+                @click="handleOpenLogistics(scope.row)"
+              >
+                物流
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -261,13 +271,18 @@
       :submit-loading="shipSubmitLoading"
       @submit="handleShipSubmit"
     />
+
+    <LogisticsDialog
+      v-model="logisticsDialogVisible"
+      :order-no="logisticsOrderNo"
+    />
   </div>
 </template>
 
 <script setup>
 import { onMounted, reactive, ref } from "vue";
 import { ElMessage } from "element-plus";
-import { Promotion, Refresh, Search, View } from "@element-plus/icons-vue";
+import { Promotion, Refresh, Search, Van, View } from "@element-plus/icons-vue";
 import CommonLayout from "@/components/commonLayout.vue";
 import {
   getMerchantOrderDetail,
@@ -277,6 +292,7 @@ import {
 } from "@/api/orderApi.js";
 import { formatDate } from "@/utils/date.js";
 import { getImageUrl } from "@/utils/getimage.js";
+import LogisticsDialog from "./components/LogisticsDialog.vue";
 import OrderDetailDialog from "./components/OrderDetailDialog.vue";
 import ShipDialog from "./components/ShipDialog.vue";
 
@@ -306,6 +322,9 @@ const shipBaseOrder = ref(null);
 const sameAddressOrders = ref([]);
 const sameAddressLoading = ref(false);
 const shipSubmitLoading = ref(false);
+
+const logisticsDialogVisible = ref(false);
+const logisticsOrderNo = ref("");
 
 const normalizeSearchValue = (value) => {
   const text = String(value ?? "").trim();
@@ -451,8 +470,18 @@ const handleShipSubmit = async (payload) => {
   }
 };
 
+const handleOpenLogistics = (row) => {
+  logisticsOrderNo.value = row.orderNo || "";
+  logisticsDialogVisible.value = true;
+};
+
 const canShip = (row) => {
   return Number(row.status) === 1 && Number(row.payStatus) === 1;
+};
+
+const canViewLogistics = (row) => {
+  const status = Number(row.status);
+  return status === 2 || status === 3 || getTrackingList(row).length > 0;
 };
 
 const getTrackingList = (row) => {

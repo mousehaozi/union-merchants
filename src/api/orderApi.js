@@ -25,6 +25,14 @@ export const getMerchantOrderDetail = (orderNo) => {
 };
 
 /**
+ * 订单物流查询
+ * @param {string} orderNo - 订单编号
+ */
+export const getMerchantOrderLogistics = (orderNo) => {
+  return request.get(`/merchant/orders/${orderNo}/logistics`);
+};
+
+/**
  * 查询同地址待发货订单
  * @param {Object} params - { addressId }
  */

@@ -9,6 +9,14 @@ export const getProductPage = (params) => {
 };
 
 /**
+ * 未上架商品分页列表
+ * @param {Object} params - { pageNum, pageSize }
+ */
+export const getUnlistedProductPage = (params) => {
+  return request.get("/merchant/products/unlisted/page", { params });
+};
+
+/**
  * 商品详情
  * @param {number|string} productId - 商品ID
  */
@@ -46,12 +54,4 @@ export const getProductCategoryTree = () => {
  */
 export const delistProduct = (productId) => {
   return request.put(`/merchant/products/${productId}/delist`);
-};
-
-/**
- * 获取商品变动记录
- * @param {number|string} productId - 商品ID
- */
-export const getProductChangeLogs = (productId) => {
-  return request.get(`/merchant/products/${productId}/change-logs`);
 };

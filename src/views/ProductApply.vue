@@ -301,7 +301,7 @@ import {
   Close,
   DocumentChecked
 } from '@element-plus/icons-vue';
-import { getProductPage } from '@/api/productApi';
+import { getUnlistedProductPage } from '@/api/productApi';
 import {
   getProductApplyPage,
   getProductApplyDetail,
@@ -424,14 +424,13 @@ const handleCurrentChange = (val) => {
   loadApplies();
 };
 
-// Load available products for selection (status = 0 - Not listed)
+// Load available products for selection
 const loadAvailableProducts = async () => {
   productsLoading.value = true;
   try {
-    const res = await getProductPage({
+    const res = await getUnlistedProductPage({
       pageNum: 1,
-      pageSize: 100,
-      status: 0 // 未上架
+      pageSize: 100
     });
     if (res && (res.code === 200 || res.code === 0) && res.data) {
       const records = res.data.records || [];
